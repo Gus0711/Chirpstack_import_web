@@ -1,0 +1,31 @@
+# Claude Code local settings
+.claude/
+
+# Environment variables
+.env
+.env.*
+.env.local
+
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+*.p8
+credentials*
+secrets*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

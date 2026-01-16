@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChirpStack CSV Importer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-input: #1a1a25;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa33;
+            --text: #e8e8ef;
+            --text-dim: #6b6b80;
+            --border: #2a2a3a;
+            --error: #ff5c5c;
+            --success: #00d4aa;
+            --warning: #ffb84d;
+            --step-inactive: #3a3a4a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .drop-zone svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+        }
+
+        .drop-zone p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .drop-zone .filename {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .mapping-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .mapping-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mapping-item label {
+            min-width: 100px;
+            margin-bottom: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .mapping-item select {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .tag-key {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tag-value {
+            color: var(--text-dim);
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .add-tag {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .add-tag input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-dim);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .preview-section {
+            margin-top: 2rem;
+        }
+
+        .preview-table {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-input);
+            font-weight: 600;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+        }
+
+        tr:hover td {
+            background: var(--bg-input);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .log-container {
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-success { color: var(--success); }
+        .log-error { color: var(--error); }
+        .log-info { color: var(--text-dim); }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stat-success .stat-value { color: var(--success); }
+        .stat-error .stat-value { color: var(--error); }
+        .stat-total .stat-value { color: var(--accent); }
+
+        .hidden { display: none !important; }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .separator-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .separator-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .separator-options input[type="radio"] {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3rem;
+            gap: 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--step-inactive);
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .step.completed .step-number {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: var(--text);
+        }
+
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: var(--step-inactive);
+            margin: 0 1rem;
+            transition: background 0.3s;
+        }
+
+        .step-connector.completed {
+            background: var(--accent);
+        }
+
+        @media (max-width: 700px) {
+            .stepper {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            .step-connector {
+                display: none;
+            }
+            .step-label {
+                display: none;
+            }
+        }
+
+        /* Step content */
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        /* Connection status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .connection-status.success {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .connection-status.error {
+            background: rgba(255, 92, 92, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .connection-status.loading {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Select styling */
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            padding-right: 2.5rem;
+        }
+
+        .select-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-dim);
+            pointer-events: none;
+        }
+
+        .info-box {
+            background: var(--bg-input);
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .info-box code {
+            background: var(--bg-dark);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+        }
+
+        .card-centered {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ChirpStack CSV Importer</h1>
+            <p>Import devices LoRaWAN depuis un fichier CSV</p>
+        </header>
+
+        <!-- Stepper -->
+        <div class="stepper">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <span class="step-label">Connexion</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <span class="step-label">Application</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <span class="step-label">Import CSV</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Connexion API + Tenant -->
+        <div class="step-content active" id="step1">
+            <div class="card card-centered">
+                <h2>Connexion à ChirpStack</h2>
+                <div class="info-box" id="infoBox">
+                    Pour obtenir un token API, allez dans ChirpStack &gt; <code>API Keys</code> &gt; Create
+                </div>
+
+                <label for="apiUrl">URL ChirpStack</label>
+                <input type="text" id="apiUrl" placeholder="http://localhost:8090" value="http://localhost:8090">
+
+                <label for="apiToken">Token API</label>
+                <input type="password" id="apiToken" placeholder="Votre token (sans Bearer)...">
+
+                <!-- Tenant selection - shown after connection test -->
+                <div id="tenantSection" class="hidden">
+                    <label for="tenantSelect">Tenant</label>
+                    <div class="select-wrapper">
+                        <select id="tenantSelect">
+                            <option value="">-- Sélectionnez un tenant --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Manual tenant ID - shown if not admin -->
+                <div id="tenantManualSection" class="hidden">
+                    <label for="tenantId">Tenant ID <span style="color: var(--text-dim); font-weight: normal;">(clé non-admin détectée)</span></label>
+                    <input type="text" id="tenantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                    <div class="info-box" style="margin-top: -0.5rem;">
+                        Le Tenant ID se trouve dans l'URL : <code>/#/tenants/<strong>TENANT_ID</strong>/...</code>
+                    </div>
+                </div>
+
+                <div id="connectionStatus"></div>
+
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button class="btn-primary" id="btnTestConnection" onclick="testConnection()">Tester la connexion</button>
+                    <button class="btn-primary hidden" id="btnContinueStep2" onclick="continueToStep2()">Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Sélection Application -->
+        <div class="step-content" id="step2">
+            <div class="card card-centered">
+                <h2>Sélection de l'Application</h2>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Sélectionnez l'application cible pour vos devices.
+                </p>
+
+                <label for="applicationSelect">Application</label>
+                <div class="select-wrapper">
+                    <select id="applicationSelect">
+                        <option value="">Chargement...</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn-secondary" onclick="goToStep(1)">Retour</button>
+                    <button class="btn-primary" id="btnToStep3" onclick="selectApplication()" disabled>Continuer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Import CSV -->
+        <div class="step-content" id="step3">
+            <div class="grid">
+                <!-- Résumé configuration -->
+                <div class="card">
+                    <h2>Configuration</h2>
+                    <div style="font-size: 0.9rem;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-dim);">Tenant:</span>
+                            <span id="summaryTenant" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <span style="color: var(--text-dim);">Application:</span>
+                            <span id="summaryApp" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                        </div>
+                    </div>
+
+                    <label for="deviceProfileSelect">Device Profile</label>
+                    <div class="select-wrapper">
+                        <select id="deviceProfileSelect">
+                            <option value="">-- Utiliser le CSV --</option>
+                        </select>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: -0.5rem;">
+                        Appliquer un device profile fixe ou laisser vide pour utiliser la colonne CSV
+                    </p>
+
+                    <div style="margin-top: 1rem;">
+                        <button class="btn-secondary btn-small" onclick="goToStep(1)">Modifier connexion</button>
+                    </div>
+                </div>
+
+                <!-- Upload CSV -->
+                <div class="card">
+                    <h2>Fichier CSV</h2>
+                    <div class="drop-zone" id="dropZone">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p>Glissez votre CSV ici ou <strong>cliquez pour parcourir</strong></p>
+                        <div class="filename" id="fileName"></div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".csv" style="display: none;">
+
+                    <label style="margin-top: 1rem; display: block;">Séparateur CSV</label>
+                    <div class="separator-options">
+                        <label><input type="radio" name="separator" value=";" checked> Point-virgule (;)</label>
+                        <label><input type="radio" name="separator" value=","> Virgule (,)</label>
+                        <label><input type="radio" name="separator" value="\t"> Tabulation</label>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Mapping Section -->
+        <div class="card hidden" id="mappingSection">
+            <h2>Mapping des colonnes</h2>
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Associez les colonnes de votre CSV aux champs ChirpStack
+            </p>
+            
+            <div class="mapping-grid" id="mappingGrid">
+                <div class="mapping-item">
+                    <label>name</label>
+                    <select data-field="name"></select>
+                </div>
+                <div class="mapping-item">
+                    <label>description</label>
+                    <select data-field="description"></select>
+                </div>
+                <div class="mapping-item">
+                    <label>dev_eui</label>
+                    <select data-field="dev_eui"></select>
+                </div>
+                <div class="mapping-item">
+                    <label>device_profile_id</label>
+                    <select data-field="device_profile_id"></select>
+                </div>
+                <div class="mapping-item">
+                    <label>app_key (nwk_key)</label>
+                    <select data-field="app_key"></select>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;">Tags additionnels (colonnes CSV)</h3>
+                <div class="tag-container" id="csvTagContainer"></div>
+                
+                <h3 style="font-size: 1rem; margin-bottom: 1rem; margin-top: 1.5rem;">Tags manuels (valeur fixe pour tous)</h3>
+                <div class="tag-container" id="manualTagContainer"></div>
+                <div class="add-tag">
+                    <input type="text" id="tagKey" placeholder="Clé">
+                    <input type="text" id="tagValue" placeholder="Valeur">
+                    <button class="btn-secondary btn-small" onclick="addManualTag()">+ Ajouter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="card preview-section hidden" id="previewSection">
+            <h2>Aperçu des données</h2>
+            <p style="color: var(--text-dim); font-size: 0.9rem;">
+                <span id="rowCount">0</span> devices à importer
+            </p>
+            <div class="preview-table">
+                <table id="previewTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions hidden" id="actionsSection">
+            <button class="btn-secondary" onclick="resetAll()">Réinitialiser</button>
+            <button class="btn-primary" id="importBtn" onclick="startImport()">
+                🚀 Lancer l'import
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="card hidden" id="resultsSection">
+            <h2>Résultats</h2>
+            <div class="stats">
+                <div class="stat stat-total">
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat stat-success">
+                    <div class="stat-value" id="statSuccess">0</div>
+                    <div class="stat-label">Succès</div>
+                </div>
+                <div class="stat stat-error">
+                    <div class="stat-value" id="statError">0</div>
+                    <div class="stat-label">Erreurs</div>
+                </div>
+            </div>
+
+            <!-- Fix Device Profile section - shown when DP is missing -->
+            <div id="fixDeviceProfileSection" class="hidden" style="margin: 1.5rem 0; padding: 1rem; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--warning);">
+                <p style="color: var(--warning); margin-bottom: 1rem; font-weight: 500;">
+                    ⚠ Device Profile manquant ! Sélectionnez-en un et relancez l'import :
+                </p>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div class="select-wrapper" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                        <select id="fixDeviceProfileSelect">
+                            <option value="">-- Sélectionnez un Device Profile --</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="retryWithDeviceProfile()">Relancer l'import</button>
+                </div>
+            </div>
+
+            <div class="log-container" id="logContainer"></div>
+        </div>
+        </div><!-- End step4 -->
+    </div>
+
+    <script>
+        // ==================== STATE ====================
+        let currentStep = 1;
+        let csvData = [];
+        let csvHeaders = [];
+        let manualTags = {};
+        let csvTags = [];
+        let currentFile = null; // Store uploaded file for separator changes
+
+        // API data
+        let applications = [];
+        let deviceProfiles = [];
+        let selectedTenantId = '';
+        let selectedApplicationId = '';
+        let selectedApplicationName = '';
+
+        // ==================== STEPPER ====================
+        function goToStep(step) {
+            currentStep = step;
+
+            // Update step content visibility
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+
+            // Update stepper visual
+            document.querySelectorAll('.step').forEach(el => {
+                const stepNum = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed');
+                if (stepNum === step) el.classList.add('active');
+                if (stepNum < step) el.classList.add('completed');
+            });
+
+            // Update connectors
+            document.querySelectorAll('.step-connector').forEach((el, i) => {
+                el.classList.toggle('completed', i < step - 1);
+            });
+        }
+
+        // ==================== API HELPERS ====================
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value.trim().replace(/\/$/, '');
+        }
+
+        function getApiToken() {
+            let token = document.getElementById('apiToken').value.trim();
+            // Remove "Bearer " prefix if user included it
+            if (token.toLowerCase().startsWith('bearer ')) {
+                token = token.substring(7);
+            }
+            return token;
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            // Use proxy to avoid CORS issues
+            const baseUrl = getApiUrl();
+            const url = `/proxy/${baseUrl}${endpoint}`;
+            const options = {
+                method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Grpc-Metadata-Authorization': `Bearer ${getApiToken()}`
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`${response.status}: ${text}`);
+            }
+            return response.json();
+        }
+
+        function setConnectionStatus(type, message) {
+            const el = document.getElementById('connectionStatus');
+            if (type === 'loading') {
+                el.innerHTML = `<div class="connection-status loading"><div class="spinner"></div>${message}</div>`;
+            } else if (type === 'success') {
+                el.innerHTML = `<div class="connection-status success">✓ ${message}</div>`;
+            } else if (type === 'error') {
+                el.innerHTML = `<div class="connection-status error">✗ ${message}</div>`;
+            } else {
+                el.innerHTML = '';
+            }
+        }
+
+        // ==================== STEP 1: CONNECTION ====================
+        let isAdminKey = false;
+        let tenants = [];
+
+        function getTenantId() {
+            // Get from select if admin, otherwise from manual input
+            if (isAdminKey) {
+                return document.getElementById('tenantSelect').value;
+            }
+            return document.getElementById('tenantId').value.trim();
+        }
+
+        async function testConnection() {
+            const apiUrl = getApiUrl();
+            const apiToken = getApiToken();
+
+            if (!apiUrl || !apiToken) {
+                alert('Veuillez remplir l\'URL et le token API');
+                return;
+            }
+
+            setConnectionStatus('loading', 'Test de connexion...');
+
+            // Hide tenant sections initially
+            document.getElementById('tenantSection').classList.add('hidden');
+            document.getElementById('tenantManualSection').classList.add('hidden');
+            document.getElementById('btnContinueStep2').classList.add('hidden');
+
+            try {
+                // Try to fetch tenants (works only with admin key)
+                const data = await apiCall('/api/tenants?limit=100');
+                tenants = data.result || [];
+                isAdminKey = true;
+
+                if (tenants.length === 0) {
+                    setConnectionStatus('error', 'Connexion OK mais aucun tenant trouvé');
+                    return;
+                }
+
+                setConnectionStatus('success', `Clé admin détectée ! ${tenants.length} tenant(s) disponible(s)`);
+
+                // Populate tenant select
+                const select = document.getElementById('tenantSelect');
+                select.innerHTML = '<option value="">-- Sélectionnez un tenant --</option>' +
+                    tenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+                // Show tenant select
+                document.getElementById('tenantSection').classList.remove('hidden');
+                document.getElementById('btnTestConnection').classList.add('hidden');
+                document.getElementById('btnContinueStep2').classList.remove('hidden');
+
+            } catch (err) {
+                // If 401, it's a tenant-specific key
+                if (err.message.includes('401')) {
+                    isAdminKey = false;
+                    setConnectionStatus('success', 'Clé tenant détectée. Entrez votre Tenant ID ci-dessous.');
+
+                    // Show manual tenant ID input
+                    document.getElementById('tenantManualSection').classList.remove('hidden');
+                    document.getElementById('btnTestConnection').classList.add('hidden');
+                    document.getElementById('btnContinueStep2').classList.remove('hidden');
+                } else {
+                    setConnectionStatus('error', `Échec de connexion: ${err.message}`);
+                }
+            }
+        }
+
+        async function continueToStep2() {
+            selectedTenantId = getTenantId();
+
+            if (!selectedTenantId) {
+                alert('Veuillez sélectionner ou saisir un Tenant ID');
+                return;
+            }
+
+            setConnectionStatus('loading', 'Chargement des applications...');
+
+            try {
+                // Fetch applications for this tenant
+                const appData = await apiCall(`/api/applications?tenant_id=${selectedTenantId}&limit=100`);
+                applications = appData.result || [];
+
+                // Fetch device profiles for this tenant
+                const dpData = await apiCall(`/api/device-profiles?tenant_id=${selectedTenantId}&limit=100`);
+                deviceProfiles = dpData.result || [];
+
+                setConnectionStatus('success', `${applications.length} application(s), ${deviceProfiles.length} device profile(s)`);
+
+                // Populate application select
+                const appSelect = document.getElementById('applicationSelect');
+                if (applications.length === 0) {
+                    appSelect.innerHTML = '<option value="">Aucune application trouvée</option>';
+                } else {
+                    appSelect.innerHTML = '<option value="">-- Sélectionnez une application --</option>' +
+                        applications.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+                }
+
+                // Populate device profile select
+                const dpSelect = document.getElementById('deviceProfileSelect');
+                dpSelect.innerHTML = '<option value="">-- Utiliser le CSV ou laisser vide --</option>' +
+                    deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+
+                // Go to step 2
+                setTimeout(() => goToStep(2), 500);
+
+            } catch (err) {
+                setConnectionStatus('error', `Erreur: ${err.message}`);
+            }
+        }
+
+        // ==================== STEP 2: APPLICATION ====================
+        document.getElementById('applicationSelect').addEventListener('change', function() {
+            document.getElementById('btnToStep3').disabled = !this.value;
+        });
+
+        function selectApplication() {
+            const appSelect = document.getElementById('applicationSelect');
+
+            selectedApplicationId = appSelect.value;
+            selectedApplicationName = appSelect.options[appSelect.selectedIndex].text;
+
+            if (!selectedApplicationId) return;
+
+            // Update summary
+            document.getElementById('summaryTenant').textContent = selectedTenantId.substring(0, 8) + '...';
+            document.getElementById('summaryApp').textContent = selectedApplicationName;
+
+            // Populate device profile select for step 3
+            const dpSelect = document.getElementById('deviceProfileSelect');
+            console.log('Device Profiles:', deviceProfiles); // Debug
+            if (deviceProfiles.length === 0) {
+                dpSelect.innerHTML = '<option value="">Aucun Device Profile disponible</option>';
+            } else {
+                dpSelect.innerHTML = '<option value="">-- Sélectionnez (ou utilisez CSV) --</option>' +
+                    deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+            }
+            console.log('Select options:', dpSelect.innerHTML); // Debug
+
+            goToStep(3);
+        }
+
+        function getSelectedDeviceProfile() {
+            const dpSelect = document.getElementById('deviceProfileSelect');
+            return {
+                id: dpSelect.value,
+                name: dpSelect.value ? dpSelect.options[dpSelect.selectedIndex].text : 'Depuis CSV'
+            };
+        }
+
+        // ==================== STEP 4: CSV IMPORT ====================
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const mappingSection = document.getElementById('mappingSection');
+        const previewSection = document.getElementById('previewSection');
+        const actionsSection = document.getElementById('actionsSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // File Upload Handling
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function getSeparator() {
+            const selected = document.querySelector('input[name="separator"]:checked');
+            return selected.value === '\\t' ? '\t' : selected.value;
+        }
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                alert('Veuillez sélectionner un fichier CSV');
+                return;
+            }
+
+            currentFile = file; // Store for separator changes
+            document.getElementById('fileName').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseCSV(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(content) {
+            const separator = getSeparator();
+            const lines = content.split('\n').filter(line => line.trim());
+
+            if (lines.length < 2) {
+                alert('Le fichier CSV doit contenir au moins une ligne d\'en-tête et une ligne de données');
+                return;
+            }
+
+            csvHeaders = parseCSVLine(lines[0], separator);
+            csvData = lines.slice(1).map(line => {
+                const values = parseCSVLine(line, separator);
+                const row = {};
+                csvHeaders.forEach((header, i) => {
+                    row[header] = (values[i] || '').replace(/[\r\n]/g, ' ').trim();
+                });
+                return row;
+            });
+
+            populateMappingSelects();
+            updatePreview();
+
+            mappingSection.classList.remove('hidden');
+            previewSection.classList.remove('hidden');
+            actionsSection.classList.remove('hidden');
+        }
+
+        function parseCSVLine(line, separator) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === separator && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function populateMappingSelects() {
+            const selects = document.querySelectorAll('#mappingGrid select');
+            const options = '<option value="">-- Non mappé --</option>' +
+                csvHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
+
+            selects.forEach(select => {
+                select.innerHTML = options;
+                // Auto-detect mapping
+                const field = select.dataset.field.toLowerCase();
+                const match = csvHeaders.find(h => {
+                    const hLower = h.toLowerCase().replace(/[_\s-]/g, '');
+                    return hLower.includes(field.replace(/[_\s-]/g, '')) ||
+                           (field === 'dev_eui' && hLower.includes('deveui')) ||
+                           (field === 'app_key' && (hLower.includes('appkey') || hLower.includes('nwkkey')));
+                });
+                if (match) select.value = match;
+
+                select.addEventListener('change', updatePreview);
+            });
+
+            // Populate CSV tags selection
+            const tagContainer = document.getElementById('csvTagContainer');
+            tagContainer.innerHTML = csvHeaders.map(h => `
+                <label class="tag" style="cursor: pointer;">
+                    <input type="checkbox" value="${h}" onchange="updateCsvTags()">
+                    <span class="tag-key">${h}</span>
+                </label>
+            `).join('');
+        }
+
+        function updateCsvTags() {
+            csvTags = Array.from(document.querySelectorAll('#csvTagContainer input:checked'))
+                .map(cb => cb.value);
+            updatePreview();
+        }
+
+        function addManualTag() {
+            const key = document.getElementById('tagKey').value.trim();
+            const value = document.getElementById('tagValue').value.trim();
+
+            if (key && value) {
+                manualTags[key] = value;
+                renderManualTags();
+                document.getElementById('tagKey').value = '';
+                document.getElementById('tagValue').value = '';
+                updatePreview();
+            }
+        }
+
+        function removeManualTag(key) {
+            delete manualTags[key];
+            renderManualTags();
+            updatePreview();
+        }
+
+        function renderManualTags() {
+            const container = document.getElementById('manualTagContainer');
+            container.innerHTML = Object.entries(manualTags).map(([k, v]) => `
+                <div class="tag">
+                    <span class="tag-key">${k}</span>
+                    <span class="tag-value">= ${v}</span>
+                    <button onclick="removeManualTag('${k}')">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function getMapping() {
+            const mapping = {};
+            document.querySelectorAll('#mappingGrid select').forEach(select => {
+                if (select.value) {
+                    mapping[select.dataset.field] = select.value;
+                }
+            });
+            return mapping;
+        }
+
+        function updatePreview() {
+            const mapping = getMapping();
+            const thead = document.querySelector('#previewTable thead');
+            const tbody = document.querySelector('#previewTable tbody');
+
+            const displayFields = ['name', 'dev_eui', 'app_key'];
+            const headers = displayFields.filter(f => mapping[f]).map(f => f);
+            if (csvTags.length) headers.push('tags (CSV)');
+            if (Object.keys(manualTags).length) headers.push('tags (manuels)');
+
+            thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+            const previewRows = csvData.slice(0, 5);
+            tbody.innerHTML = previewRows.map(row => {
+                const cells = displayFields
+                    .filter(f => mapping[f])
+                    .map(f => `<td>${row[mapping[f]] || '-'}</td>`);
+
+                if (csvTags.length) {
+                    const tags = csvTags.map(t => `${t}: ${row[t] || ''}`).join(', ');
+                    cells.push(`<td>${tags}</td>`);
+                }
+                if (Object.keys(manualTags).length) {
+                    cells.push(`<td>${Object.entries(manualTags).map(([k,v]) => `${k}: ${v}`).join(', ')}</td>`);
+                }
+
+                return `<tr>${cells.join('')}</tr>`;
+            }).join('');
+
+            document.getElementById('rowCount').textContent = csvData.length;
+        }
+
+        let hasDeviceProfileError = false;
+        let failedRows = []; // Store failed rows for retry
+
+        async function startImport(retryMode = false) {
+            const mapping = getMapping();
+            if (!mapping.dev_eui) {
+                alert('Le mapping dev_eui est obligatoire');
+                return;
+            }
+
+            resultsSection.classList.remove('hidden');
+            document.getElementById('fixDeviceProfileSection').classList.add('hidden');
+            const logContainer = document.getElementById('logContainer');
+
+            if (!retryMode) {
+                logContainer.innerHTML = '';
+                failedRows = [];
+                hasDeviceProfileError = false;
+            }
+
+            let success = 0;
+            let errors = 0;
+            const rowsToProcess = retryMode ? failedRows : csvData;
+            const total = rowsToProcess.length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('importBtn').disabled = true;
+
+            if (retryMode) {
+                log(`\n── Relance avec Device Profile: ${getSelectedDeviceProfile().name} ──`, 'info');
+                failedRows = []; // Reset for this retry
+            }
+
+            for (let i = 0; i < rowsToProcess.length; i++) {
+                const row = rowsToProcess[i];
+                const devEui = row[mapping.dev_eui];
+                const deviceName = row[mapping.name] || devEui;
+
+                // Build tags
+                const tags = { ...manualTags };
+                csvTags.forEach(tagCol => {
+                    if (row[tagCol]) {
+                        tags[tagCol] = row[tagCol];
+                    }
+                });
+
+                // Determine device profile ID (from fix select, step 3 select, or CSV column)
+                let deviceProfileId = '';
+                const fixSelect = document.getElementById('fixDeviceProfileSelect');
+                if (retryMode && fixSelect.value) {
+                    deviceProfileId = fixSelect.value;
+                } else {
+                    const selectedDP = getSelectedDeviceProfile();
+                    deviceProfileId = selectedDP.id;
+                    if (!deviceProfileId && mapping.device_profile_id) {
+                        deviceProfileId = row[mapping.device_profile_id];
+                    }
+                }
+
+                // Device payload
+                const devicePayload = {
+                    device: {
+                        application_id: selectedApplicationId,
+                        name: deviceName,
+                        description: mapping.description ? row[mapping.description] : '',
+                        dev_eui: devEui,
+                        device_profile_id: deviceProfileId || '',
+                        tags: tags
+                    }
+                };
+
+                try {
+                    // Create device
+                    await apiCall('/api/devices', 'POST', devicePayload);
+                    log(`✓ Device ${deviceName} créé`, 'success');
+
+                    // Add keys if app_key is mapped
+                    if (mapping.app_key && row[mapping.app_key]) {
+                        const keysPayload = {
+                            device_keys: {
+                                dev_eui: devEui,
+                                nwk_key: row[mapping.app_key]
+                            }
+                        };
+
+                        try {
+                            await apiCall(`/api/devices/${devEui}/keys`, 'POST', keysPayload);
+                            log(`  ↳ Clés ajoutées`, 'info');
+                        } catch (keyErr) {
+                            log(`  ⚠ Clés non ajoutées: ${keyErr.message}`, 'error');
+                        }
+                    }
+
+                    success++;
+                } catch (err) {
+                    const friendlyError = parseApiError(err.message);
+                    log(`✗ ${deviceName}: ${friendlyError}`, 'error');
+                    errors++;
+
+                    // Track Device Profile errors for retry
+                    if (err.message.includes('invalid length') && err.message.includes('found 0')) {
+                        hasDeviceProfileError = true;
+                        failedRows.push(row);
+                    }
+                }
+
+                document.getElementById('statSuccess').textContent = success;
+                document.getElementById('statError').textContent = errors;
+            }
+
+            document.getElementById('importBtn').disabled = false;
+            log(`\n═══ Import terminé: ${success}/${total} devices créés ═══`, success === total ? 'success' : 'info');
+
+            // Show fix section if Device Profile errors occurred
+            if (hasDeviceProfileError && failedRows.length > 0) {
+                const fixSection = document.getElementById('fixDeviceProfileSection');
+                const fixSelect = document.getElementById('fixDeviceProfileSelect');
+
+                // Populate the fix select with device profiles
+                fixSelect.innerHTML = '<option value="">-- Sélectionnez un Device Profile --</option>' +
+                    deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+
+                fixSection.classList.remove('hidden');
+            }
+        }
+
+        function retryWithDeviceProfile() {
+            const fixSelect = document.getElementById('fixDeviceProfileSelect');
+            if (!fixSelect.value) {
+                alert('Veuillez sélectionner un Device Profile');
+                return;
+            }
+            hasDeviceProfileError = false;
+            startImport(true); // Retry mode
+        }
+
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function parseApiError(errorMessage) {
+            // Parse ChirpStack error messages to make them user-friendly
+            if (errorMessage.includes('invalid length: expected length 32') && errorMessage.includes('found 0')) {
+                return 'Device Profile ID manquant. Sélectionnez un Device Profile ou mappez la colonne dans le CSV.';
+            }
+            if (errorMessage.includes('invalid length: expected length 32')) {
+                return 'Un champ UUID est invalide (doit faire 32 caractères). Vérifiez device_profile_id ou application_id.';
+            }
+            if (errorMessage.includes('object already exists')) {
+                return 'Ce device existe déjà (dev_eui en doublon).';
+            }
+            if (errorMessage.includes('invalid DevEUI')) {
+                return 'DevEUI invalide. Doit être 16 caractères hexadécimaux.';
+            }
+            if (errorMessage.includes('invalid AppKey') || errorMessage.includes('invalid NwkKey')) {
+                return 'AppKey/NwkKey invalide. Doit être 32 caractères hexadécimaux.';
+            }
+
+            // Try to extract just the message from JSON
+            try {
+                const parsed = JSON.parse(errorMessage.substring(errorMessage.indexOf('{')));
+                if (parsed.message) {
+                    return parsed.message || errorMessage;
+                }
+            } catch (e) {}
+
+            return errorMessage;
+        }
+
+        function resetAll() {
+            csvData = [];
+            csvHeaders = [];
+            manualTags = {};
+            csvTags = [];
+
+            document.getElementById('fileName').textContent = '';
+            fileInput.value = '';
+            mappingSection.classList.add('hidden');
+            previewSection.classList.add('hidden');
+            actionsSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            document.getElementById('manualTagContainer').innerHTML = '';
+        }
+
+        // Listen for separator changes
+        document.querySelectorAll('input[name="separator"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (currentFile) {
+                    handleFile(currentFile);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
