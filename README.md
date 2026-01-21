@@ -1,16 +1,18 @@
 # ChirpStack CSV Importer
 
-Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier CSV.
+Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier CSV ou Excel.
 
 ## Fonctionnalités
 
-- **Upload CSV** : Drag & drop ou sélection de fichier
+- **Upload CSV/Excel** : Drag & drop ou sélection de fichier (formats CSV, XLS, XLSX)
 - **Détection automatique** : Séparateur CSV (`;`, `,`, `tab`) modifiable à la volée
 - **Auto-mapping** : Détection intelligente des colonnes (dev_eui, app_key, name, etc.)
 - **Mapping manuel** : Association personnalisée des colonnes CSV aux champs ChirpStack
 - **Tags** : Support des tags depuis colonnes CSV ou valeurs fixes manuelles
 - **Détection clé API** : Distingue automatiquement clé admin vs clé tenant
 - **Gestion erreurs** : Messages d'erreur clairs + correction sans revenir en arrière
+- **Profils d'import** : Gestion de profils avec tags obligatoires (stockage serveur)
+- **Validation des tags** : Vérification automatique des tags requis avant import
 - **100% client-side** : Tout tourne dans le navigateur (via proxy local)
 
 ---
@@ -31,6 +33,7 @@ Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier
 Chirpstack_import_web/
 ├── main.html      # Interface web
 ├── server.py      # Serveur proxy Python
+├── profiles.json  # Stockage des profils (généré automatiquement)
 └── README.md      # Cette documentation
 ```
 
@@ -73,18 +76,27 @@ Puis ouvrir : **http://localhost:8000**
 
 Sélectionner l'application cible dans la liste déroulante.
 
-### Étape 3 : Import CSV
+### Étape 3 : Import CSV/Excel
 
-1. **Configuration** : Sélectionner un Device Profile (optionnel si présent dans le CSV)
-2. **Upload CSV** : Glisser-déposer ou cliquer pour parcourir
-3. **Séparateur** : Modifier si nécessaire (le fichier se recharge automatiquement)
-4. **Mapping** : Vérifier/ajuster l'association des colonnes
-5. **Tags** : Ajouter des tags depuis colonnes CSV ou manuellement
-6. **Import** : Cliquer sur "Lancer l'import"
+1. **Profil d'import** : Sélectionner un profil d'import (obligatoire) — définit les tags requis
+2. **Device Profile** : Sélectionner un Device Profile (optionnel si présent dans le fichier)
+3. **Upload fichier** : Glisser-déposer ou cliquer pour parcourir (CSV, XLS, XLSX)
+4. **Séparateur** : Pour les CSV, modifier si nécessaire (auto-détecté)
+5. **Mapping** : Vérifier/ajuster l'association des colonnes
+6. **Tags obligatoires** : Remplir les tags requis par le profil sélectionné
+7. **Tags additionnels** : Ajouter des tags depuis colonnes ou manuellement
+8. **Import** : Cliquer sur "Lancer l'import"
 
 ---
 
-## Format CSV
+## Format des fichiers
+
+### Formats acceptés
+
+| Format | Extension | Notes |
+|--------|-----------|-------|
+| CSV | `.csv` | Séparateurs : `;`, `,`, `tab` (auto-détecté) |
+| Excel | `.xls`, `.xlsx` | Première feuille utilisée |
 
 ### Colonnes supportées
 
@@ -117,19 +129,58 @@ L'outil détecte automatiquement les colonnes suivantes :
 
 ---
 
+## Profils d'import
+
+Les profils d'import permettent de définir des modèles avec des **tags obligatoires** pour standardiser les imports.
+
+### Gestion des profils
+
+Accéder à la gestion via le bouton engrenage (⚙) à côté du sélecteur de profil ou via le bouton flottant en bas à droite.
+
+**Fonctionnalités :**
+- Créer/modifier/supprimer des profils
+- Définir une liste de tags obligatoires par profil
+- Les profils sont stockés côté serveur (`profiles.json`)
+
+### Sélection obligatoire
+
+Avant de pouvoir charger un fichier, vous devez sélectionner :
+- Un **profil existant** : les tags définis seront obligatoires
+- **"Sans profil"** : import simple sans tags obligatoires
+
+### Exemple de profil
+
+```json
+{
+  "name": "CHCM",
+  "requiredTags": ["Site", "Batiment", "Etage", "Emplacement"]
+}
+```
+
+Lors de l'import avec ce profil, l'utilisateur devra mapper ou renseigner manuellement ces 4 tags pour chaque device.
+
+---
+
 ## Tags
 
-### Tags depuis colonnes CSV
+### Tags depuis colonnes CSV/Excel
 
 Cocher les colonnes à utiliser comme tags. Chaque valeur de la colonne devient un tag pour le device correspondant.
+
+### Tags obligatoires (profil)
+
+Si un profil avec tags obligatoires est sélectionné, des champs apparaissent pour :
+- Mapper chaque tag requis vers une colonne du fichier
+- Ou saisir une valeur fixe appliquée à tous les devices
 
 ### Tags manuels
 
 Ajouter des tags avec une valeur fixe appliquée à tous les devices importés.
 
 **Exemple :**
-- Tag CSV : colonne `batiment` → chaque device aura le tag `batiment: <valeur>`
+- Tag depuis colonne : colonne `batiment` → chaque device aura le tag `batiment: <valeur>`
 - Tag manuel : `projet: Migration2024` → tous les devices auront ce tag
+- Tag obligatoire (profil) : mappé vers colonne ou valeur fixe
 
 ---
 
@@ -218,7 +269,7 @@ nssm start ChirpStackImporter
 ```dockerfile
 FROM python:3.11-slim
 WORKDIR /app
-COPY main.html server.py ./
+COPY main.html server.py profiles.json* ./
 EXPOSE 8000
 CMD ["python", "server.py"]
 ```
@@ -247,10 +298,16 @@ docker run -d --restart=always -p 8000:8000 chirpstack-importer
 - Sélectionner un Device Profile dans l'interface
 - Ou ajouter une colonne `device_profile_id` dans le CSV
 
-### Le séparateur ne fonctionne pas
+### Le séparateur ne fonctionne pas (CSV)
 
 - Vérifier l'encodage du fichier (UTF-8 recommandé)
 - Essayer les différents séparateurs
+- Utiliser un fichier Excel (.xlsx) comme alternative
+
+### Impossible de charger un fichier
+
+- Vérifier qu'un **profil d'import** est sélectionné (obligatoire)
+- Utiliser "Sans profil" pour un import simple
 
 ### Clé tenant : impossible de lister les tenants
 
@@ -268,6 +325,19 @@ docker run -d --restart=always -p 8000:8000 chirpstack-importer
 | `/api/device-profiles` | GET | Liste des device profiles d'un tenant |
 | `/api/devices` | POST | Création d'un device |
 | `/api/devices/{dev_eui}/keys` | POST | Ajout des clés (app_key) |
+
+## API locale (profils)
+
+Le serveur Python expose une API REST pour la gestion des profils d'import :
+
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/api/profiles` | GET | Liste tous les profils |
+| `/api/profiles` | POST | Crée un nouveau profil |
+| `/api/profiles/{id}` | PUT | Met à jour un profil |
+| `/api/profiles/{id}` | DELETE | Supprime un profil |
+
+Les profils sont stockés dans `profiles.json`.
 
 ---
 

@@ -12,9 +12,29 @@ import urllib.error
 import json
 import sys
 import os
+import uuid
+from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+PROFILES_FILE = 'profiles.json'
+
+
+def load_profiles():
+    """Load profiles from JSON file"""
+    if not os.path.exists(PROFILES_FILE):
+        return {"profiles": []}
+    try:
+        with open(PROFILES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {"profiles": []}
+
+
+def save_profiles(data):
+    """Save profiles to JSON file"""
+    with open(PROFILES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 class ProxyHandler(http.server.SimpleHTTPRequestHandler):
 
@@ -30,29 +50,147 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith('/proxy/'):
             self.proxy_request('GET')
+        elif self.path == '/api/profiles' or self.path.startswith('/api/profiles?'):
+            self.handle_get_profiles()
         else:
             # Serve static files
             if self.path == '/':
                 self.path = '/main.html'
             super().do_GET()
 
+    def handle_get_profiles(self):
+        """Return all profiles"""
+        data = load_profiles()
+        response = json.dumps(data).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+
     def do_POST(self):
         if self.path.startswith('/proxy/'):
             self.proxy_request('POST')
+        elif self.path == '/api/profiles':
+            self.handle_create_profile()
         else:
             self.send_error(404)
+
+    def handle_create_profile(self):
+        """Create a new profile"""
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length)
+
+        try:
+            profile_data = json.loads(body.decode('utf-8'))
+        except json.JSONDecodeError:
+            self.send_json_error(400, 'Invalid JSON')
+            return
+
+        if not profile_data.get('name'):
+            self.send_json_error(400, 'Profile name is required')
+            return
+
+        data = load_profiles()
+        now = datetime.utcnow().isoformat() + 'Z'
+
+        new_profile = {
+            'id': str(uuid.uuid4()),
+            'name': profile_data['name'],
+            'requiredTags': profile_data.get('requiredTags', []),
+            'createdAt': now,
+            'updatedAt': now
+        }
+
+        data['profiles'].append(new_profile)
+        save_profiles(data)
+
+        response = json.dumps(new_profile).encode('utf-8')
+        self.send_response(201)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
 
     def do_PUT(self):
         if self.path.startswith('/proxy/'):
             self.proxy_request('PUT')
+        elif self.path.startswith('/api/profiles/'):
+            self.handle_update_profile()
         else:
             self.send_error(404)
+
+    def handle_update_profile(self):
+        """Update an existing profile"""
+        profile_id = self.path.split('/api/profiles/')[-1]
+
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length)
+
+        try:
+            profile_data = json.loads(body.decode('utf-8'))
+        except json.JSONDecodeError:
+            self.send_json_error(400, 'Invalid JSON')
+            return
+
+        data = load_profiles()
+        profile_found = False
+
+        for profile in data['profiles']:
+            if profile['id'] == profile_id:
+                profile['name'] = profile_data.get('name', profile['name'])
+                profile['requiredTags'] = profile_data.get('requiredTags', profile['requiredTags'])
+                profile['updatedAt'] = datetime.utcnow().isoformat() + 'Z'
+                profile_found = True
+
+                save_profiles(data)
+                response = json.dumps(profile).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', len(response))
+                self.end_headers()
+                self.wfile.write(response)
+                break
+
+        if not profile_found:
+            self.send_json_error(404, 'Profile not found')
 
     def do_DELETE(self):
         if self.path.startswith('/proxy/'):
             self.proxy_request('DELETE')
+        elif self.path.startswith('/api/profiles/'):
+            self.handle_delete_profile()
         else:
             self.send_error(404)
+
+    def handle_delete_profile(self):
+        """Delete a profile"""
+        profile_id = self.path.split('/api/profiles/')[-1]
+
+        data = load_profiles()
+        original_length = len(data['profiles'])
+        data['profiles'] = [p for p in data['profiles'] if p['id'] != profile_id]
+
+        if len(data['profiles']) == original_length:
+            self.send_json_error(404, 'Profile not found')
+            return
+
+        save_profiles(data)
+        response = json.dumps({'success': True}).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def send_json_error(self, code, message):
+        """Send a JSON error response"""
+        response = json.dumps({'error': message}).encode('utf-8')
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
 
     def proxy_request(self, method):
         """Proxy requests to ChirpStack API"""

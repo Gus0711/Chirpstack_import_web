@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChirpStack CSV Importer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -27,18 +28,126 @@
             box-sizing: border-box;
         }
 
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Selection color */
+        ::selection {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-dark);
             color: var(--text);
             min-height: 100vh;
             line-height: 1.6;
+            position: relative;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+            animation: grid-move 20s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Subtle gradient overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at top, rgba(0, 212, 170, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Status indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-dot.success {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-dot.error {
+            background: var(--error);
+            box-shadow: 0 0 10px var(--error);
+        }
+
+        .status-dot.pending {
+            background: var(--warning);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
 
         header {
@@ -46,21 +155,47 @@
             margin-bottom: 3rem;
             padding: 2rem 0;
             border-bottom: 1px solid var(--border);
+            position: relative;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), #00ffcc);
+            background: linear-gradient(135deg, var(--accent), #00ffcc, var(--accent));
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.5rem;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         header p {
             color: var(--text-dim);
             font-weight: 300;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .grid {
@@ -79,6 +214,47 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 212, 170, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
         }
 
         .card h2 {
@@ -96,6 +272,7 @@
             height: 20px;
             background: var(--accent);
             border-radius: 2px;
+            box-shadow: 0 0 10px var(--accent-dim);
         }
 
         label {
@@ -104,6 +281,11 @@
             color: var(--text-dim);
             margin-bottom: 0.4rem;
             font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        label:hover {
+            color: var(--text);
         }
 
         input, select {
@@ -116,13 +298,18 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             margin-bottom: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+        }
+
+        input:hover, select:hover {
+            border-color: rgba(0, 212, 170, 0.3);
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
+            box-shadow: 0 0 0 3px var(--accent-dim), 0 0 20px rgba(0, 212, 170, 0.1);
+            background: rgba(26, 26, 37, 0.8);
         }
 
         input::placeholder {
@@ -135,13 +322,34 @@
             padding: 3rem 2rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .drop-zone:hover::before, .drop-zone.dragover::before {
+            width: 300%;
+            height: 300%;
         }
 
         .drop-zone:hover, .drop-zone.dragover {
             border-color: var(--accent);
-            background: var(--accent-dim);
+            box-shadow: 0 0 30px rgba(0, 212, 170, 0.15);
         }
 
         .drop-zone svg {
@@ -198,16 +406,31 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--bg-input);
+            background: linear-gradient(135deg, var(--bg-input), rgba(0, 212, 170, 0.05));
             border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            padding: 0.4rem 0.85rem;
             font-size: 0.85rem;
+            transition: all 0.2s;
+            animation: tag-pop 0.3s ease;
+        }
+
+        @keyframes tag-pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .tag:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.2);
+            transform: translateY(-1px);
         }
 
         .tag-key {
             color: var(--accent);
             font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
         }
 
         .tag-value {
@@ -217,11 +440,18 @@
         .tag button {
             background: none;
             border: none;
-            color: var(--error);
+            color: var(--text-dim);
             cursor: pointer;
-            padding: 0;
-            font-size: 1.1rem;
+            padding: 0.1rem 0.3rem;
+            font-size: 0.9rem;
             line-height: 1;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .tag button:hover {
+            color: var(--error);
+            background: rgba(255, 92, 92, 0.15);
         }
 
         .add-tag {
@@ -241,24 +471,52 @@
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #00e6b8);
             color: var(--bg-dark);
             border: none;
+            box-shadow: 0 2px 10px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px var(--accent-dim);
+            box-shadow: 0 6px 25px rgba(0, 212, 170, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 212, 170, 0.3);
         }
 
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary:disabled::before {
+            display: none;
         }
 
         .btn-secondary {
@@ -270,6 +528,7 @@
         .btn-secondary:hover {
             border-color: var(--accent);
             color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 212, 170, 0.1);
         }
 
         .btn-small {
@@ -279,12 +538,15 @@
 
         .preview-section {
             margin-top: 2rem;
+            animation: fadeInUp 0.4s ease-out;
         }
 
         .preview-table {
             width: 100%;
             overflow-x: auto;
             margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
         table {
@@ -294,9 +556,23 @@
         }
 
         th, td {
-            padding: 0.75rem;
+            padding: 0.85rem 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            position: relative;
+        }
+
+        th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent), transparent);
         }
 
         th {
@@ -312,10 +588,20 @@
         td {
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-dim);
+            transition: all 0.2s;
+        }
+
+        tr {
+            transition: all 0.2s;
+        }
+
+        tr:hover {
+            background: rgba(0, 212, 170, 0.05);
         }
 
         tr:hover td {
-            background: var(--bg-input);
+            color: var(--text);
+            border-color: rgba(0, 212, 170, 0.2);
         }
 
         .actions {
@@ -336,19 +622,27 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
             margin-top: 1rem;
+            border: 1px solid var(--border);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .log-entry {
-            padding: 0.3rem 0;
+            padding: 0.4rem 0.5rem;
             border-bottom: 1px solid var(--border);
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .log-entry:hover {
+            background: rgba(0, 212, 170, 0.05);
         }
 
         .log-entry:last-child {
             border-bottom: none;
         }
 
-        .log-success { color: var(--success); }
-        .log-error { color: var(--error); }
+        .log-success { color: var(--success); text-shadow: 0 0 10px rgba(0, 212, 170, 0.3); }
+        .log-error { color: var(--error); text-shadow: 0 0 10px rgba(255, 92, 92, 0.3); }
         .log-info { color: var(--text-dim); }
 
         .stats {
@@ -360,6 +654,16 @@
 
         .stat {
             text-align: center;
+            padding: 1rem 1.5rem;
+            background: var(--bg-input);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: scale(1.05);
+            border-color: rgba(0, 212, 170, 0.3);
         }
 
         .stat-value {
@@ -375,9 +679,9 @@
             letter-spacing: 0.1em;
         }
 
-        .stat-success .stat-value { color: var(--success); }
-        .stat-error .stat-value { color: var(--error); }
-        .stat-total .stat-value { color: var(--accent); }
+        .stat-success .stat-value { color: var(--success); text-shadow: 0 0 20px rgba(0, 212, 170, 0.4); }
+        .stat-error .stat-value { color: var(--error); text-shadow: 0 0 20px rgba(255, 92, 92, 0.4); }
+        .stat-total .stat-value { color: var(--accent); text-shadow: 0 0 20px rgba(0, 212, 170, 0.4); }
 
         .hidden { display: none !important; }
 
@@ -422,17 +726,24 @@
             align-items: center;
             margin-bottom: 3rem;
             gap: 0;
+            animation: fadeIn 0.6s ease-out 0.3s both;
         }
 
         .step {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .step:hover {
+            transform: scale(1.05);
         }
 
         .step-number {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: var(--step-inactive);
             color: var(--text-dim);
@@ -441,12 +752,21 @@
             justify-content: center;
             font-weight: 600;
             font-size: 0.9rem;
-            transition: all 0.3s;
+            transition: all 0.4s ease;
+            border: 2px solid transparent;
+            position: relative;
         }
 
         .step.active .step-number {
             background: var(--accent);
             color: var(--bg-dark);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.5), 0 0 40px rgba(0, 212, 170, 0.2);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 170, 0.5), 0 0 40px rgba(0, 212, 170, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(0, 212, 170, 0.7), 0 0 50px rgba(0, 212, 170, 0.3); }
         }
 
         .step.completed .step-number {
@@ -454,14 +774,24 @@
             color: var(--bg-dark);
         }
 
+        .step.completed .step-number::after {
+            content: '✓';
+            position: absolute;
+            font-size: 1rem;
+        }
+
         .step-label {
             font-size: 0.85rem;
             color: var(--text-dim);
             font-weight: 500;
-            transition: color 0.3s;
+            transition: all 0.3s;
         }
 
-        .step.active .step-label,
+        .step.active .step-label {
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+
         .step.completed .step-label {
             color: var(--text);
         }
@@ -471,11 +801,30 @@
             height: 2px;
             background: var(--step-inactive);
             margin: 0 1rem;
-            transition: background 0.3s;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .step-connector.completed {
             background: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+
+        .step-connector.completed::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: connector-shine 1.5s ease-out;
+        }
+
+        @keyframes connector-shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         @media (max-width: 700px) {
@@ -588,13 +937,455 @@
             max-width: 500px;
             margin: 0 auto;
         }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: modal-fade-in 0.3s ease;
+        }
+
+        @keyframes modal-fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 212, 170, 0.1);
+            animation: modal-slide-up 0.3s ease;
+        }
+
+        @keyframes modal-slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            background: linear-gradient(135deg, var(--accent), #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            line-height: 1;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--error);
+            background: rgba(255, 92, 92, 0.1);
+        }
+
+        .profile-list {
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .profile-item:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateX(4px);
+        }
+
+        .profile-item-info {
+            flex: 1;
+        }
+
+        .profile-item-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .profile-item-tags {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .profile-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .profile-item-actions button {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            font-size: 1rem;
+        }
+
+        .profile-item-actions button:hover {
+            color: var(--accent);
+        }
+
+        .profile-item-actions button.delete:hover {
+            color: var(--error);
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 42px;
+            margin-bottom: 1rem;
+        }
+
+        .tag-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tag-chip button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 0;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .tag-chip button:hover {
+            color: var(--error);
+        }
+
+        .tag-input {
+            flex: 1;
+            min-width: 100px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            outline: none;
+            padding: 0.25rem;
+        }
+
+        /* Profile selector in step 3 */
+        .profile-selector {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-selector-header label {
+            margin-bottom: 0;
+        }
+
+        .btn-icon {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Required tags section - in mapping */
+        .required-tag-input {
+            display: grid;
+            grid-template-columns: 140px 1fr auto 1fr;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .required-tag-input label {
+            margin-bottom: 0;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .required-tag-input label::after {
+            content: ' *';
+            color: var(--error);
+        }
+
+        .required-tag-input input,
+        .required-tag-input select {
+            margin-bottom: 0;
+        }
+
+        .required-tag-input .input-or {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .required-tag-input {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            .required-tag-input .input-or {
+                display: none;
+            }
+        }
+
+        .validation-error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Floating action button */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .fab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .fab:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 170, 0.2);
+        }
+
+        .fab-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Gus Signature Footer - Geek Style */
+        .gus-footer {
+            margin-top: 3rem;
+            padding: 1rem 0;
+        }
+
+        .gus-signature {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.5rem;
+            line-height: 1.15;
+            color: var(--text-dim);
+            white-space: pre;
+            text-align: left;
+            cursor: default;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.6;
+            transition: all 0.4s ease;
+        }
+
+        /* Scanline effect */
+        .gus-signature::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(
+                transparent 0%,
+                rgba(0, 212, 170, 0.03) 50%,
+                transparent 100%
+            );
+            animation: scanline 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* Border glow on hover */
+        .gus-signature::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, var(--accent), transparent, var(--accent));
+            background-size: 200% 200%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .gus-signature:hover {
+            opacity: 1;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.15), inset 0 0 30px rgba(0, 212, 170, 0.03);
+            transform: translateY(-2px);
+        }
+
+        .gus-signature:hover::after {
+            opacity: 1;
+            animation: border-glow 2s linear infinite;
+        }
+
+        @keyframes border-glow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gus-signature .gus-ascii {
+            color: var(--accent);
+            text-shadow: 0 0 5px rgba(0, 212, 170, 0.3);
+            display: block;
+        }
+
+        .gus-signature .gus-line {
+            color: var(--border);
+        }
+
+        .gus-signature .gus-title {
+            color: var(--text);
+            letter-spacing: 0.15em;
+        }
+
+        .gus-signature .gus-bullet {
+            color: var(--accent);
+        }
+
+        .gus-signature .gus-warning {
+            color: var(--warning);
+        }
+
+        /* Typing cursor effect on hover */
+        .gus-signature:hover .gus-cursor {
+            animation: blink 1s step-end infinite;
+        }
+
+        .gus-cursor {
+            color: var(--accent);
+            opacity: 0;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Terminal prompt style */
+        .gus-prompt {
+            color: var(--accent);
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>ChirpStack CSV Importer</h1>
-            <p>Import devices LoRaWAN depuis un fichier CSV</p>
+            <p>Import devices LoRaWAN depuis un fichier CSV, XLS ou XLSX</p>
         </header>
 
         <!-- Stepper -->
@@ -681,64 +1472,85 @@
 
         <!-- Step 3: Import CSV -->
         <div class="step-content" id="step3">
-            <div class="grid">
-                <!-- Résumé configuration -->
-                <div class="card">
-                    <h2>Configuration</h2>
-                    <div style="font-size: 0.9rem;">
-                        <div style="margin-bottom: 0.5rem;">
-                            <span style="color: var(--text-dim);">Tenant:</span>
-                            <span id="summaryTenant" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <span style="color: var(--text-dim);">Application:</span>
-                            <span id="summaryApp" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
-                        </div>
+            <!-- Configuration card -->
+            <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
+                <h2>Configuration</h2>
+                <div style="font-size: 0.9rem;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <span style="color: var(--text-dim);">Tenant:</span>
+                        <span id="summaryTenant" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
                     </div>
-
-                    <label for="deviceProfileSelect">Device Profile</label>
-                    <div class="select-wrapper">
-                        <select id="deviceProfileSelect">
-                            <option value="">-- Utiliser le CSV --</option>
-                        </select>
-                    </div>
-                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: -0.5rem;">
-                        Appliquer un device profile fixe ou laisser vide pour utiliser la colonne CSV
-                    </p>
-
-                    <div style="margin-top: 1rem;">
-                        <button class="btn-secondary btn-small" onclick="goToStep(1)">Modifier connexion</button>
+                    <div style="margin-bottom: 1rem;">
+                        <span style="color: var(--text-dim);">Application:</span>
+                        <span id="summaryApp" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
                     </div>
                 </div>
 
-                <!-- Upload CSV -->
-                <div class="card">
-                    <h2>Fichier CSV</h2>
-                    <div class="drop-zone" id="dropZone">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <p>Glissez votre CSV ici ou <strong>cliquez pour parcourir</strong></p>
-                        <div class="filename" id="fileName"></div>
+                <!-- Profile selector - MANDATORY -->
+                <div class="profile-selector" style="border-bottom: none; padding-bottom: 0; margin-bottom: 1rem;">
+                    <div class="profile-selector-header">
+                        <label for="importProfileSelect">Profil d'import <span style="color: var(--error);">*</span></label>
+                        <button class="btn-icon" onclick="openProfileModal()" title="Gerer les profils">&#9881;</button>
                     </div>
-                    <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                    <div class="select-wrapper">
+                        <select id="importProfileSelect" onchange="onProfileSelected()">
+                            <option value="">-- Sélectionnez un profil --</option>
+                            <option value="__none__">Sans profil (import simple)</option>
+                        </select>
+                    </div>
+                    <p id="profileSelectionHint" style="color: var(--warning); font-size: 0.85rem; margin-top: -0.5rem;">
+                        Veuillez sélectionner un profil pour continuer
+                    </p>
+                    <p id="profileSummary" class="hidden" style="font-size: 0.85rem; margin-top: -0.5rem; color: var(--text-dim);"></p>
+                </div>
 
+                <label for="deviceProfileSelect">Device Profile</label>
+                <div class="select-wrapper">
+                    <select id="deviceProfileSelect">
+                        <option value="">-- Utiliser le CSV --</option>
+                    </select>
+                </div>
+                <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: -0.5rem;">
+                    Appliquer un device profile fixe ou laisser vide pour utiliser la colonne CSV
+                </p>
+
+                <div style="margin-top: 1rem;">
+                    <button class="btn-secondary btn-small" onclick="goToStep(1)">Modifier connexion</button>
+                </div>
+            </div>
+
+            <!-- Upload file card - Initially disabled -->
+            <div class="card" id="fileUploadCard" style="max-width: 700px; margin: 0 auto; opacity: 0.5; pointer-events: none;">
+                <h2>Fichier source</h2>
+                <div class="drop-zone" id="dropZone">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p>Glissez votre fichier ici ou <strong>cliquez pour parcourir</strong></p>
+                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">Formats acceptés : CSV, XLS, XLSX</p>
+                    <div class="filename" id="fileName"></div>
+                </div>
+                <input type="file" id="fileInput" accept=".csv,.xls,.xlsx" style="display: none;">
+
+                <div id="separatorSection">
                     <label style="margin-top: 1rem; display: block;">Séparateur CSV</label>
                     <div class="separator-options">
-                        <label><input type="radio" name="separator" value=";" checked> Point-virgule (;)</label>
+                        <label><input type="radio" name="separator" value="auto" checked> Auto</label>
+                        <label><input type="radio" name="separator" value=";" > Point-virgule (;)</label>
                         <label><input type="radio" name="separator" value=","> Virgule (,)</label>
                         <label><input type="radio" name="separator" value="\t"> Tabulation</label>
                     </div>
+                    <p id="detectedSeparator" style="font-size: 0.8rem; color: var(--accent); margin-top: -0.5rem; display: none;"></p>
                 </div>
             </div>
 
         <!-- Mapping Section -->
-        <div class="card hidden" id="mappingSection">
+        <div class="card hidden" id="mappingSection" style="max-width: 900px; margin: 1.5rem auto;">
             <h2>Mapping des colonnes</h2>
             <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Associez les colonnes de votre CSV aux champs ChirpStack
+                Associez les colonnes de votre fichier aux champs ChirpStack
             </p>
-            
+
             <div class="mapping-grid" id="mappingGrid">
                 <div class="mapping-item">
                     <label>name</label>
@@ -762,10 +1574,23 @@
                 </div>
             </div>
 
+            <!-- Required tags from profile - shown only if profile has required tags -->
+            <div id="requiredTagsSection" class="hidden" style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, rgba(0, 212, 170, 0.08), rgba(0, 212, 170, 0.02)); border: 1px solid var(--accent); border-radius: 10px;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.1rem;">&#9733;</span>
+                    <span id="requiredTagsTitle">Tags obligatoires du profil</span>
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">
+                    Ces tags sont requis par le profil sélectionné. Renseignez une valeur fixe ou sélectionnez une colonne du fichier.
+                </p>
+                <div id="requiredTagsInputs"></div>
+                <div id="requiredTagsError" class="validation-error hidden"></div>
+            </div>
+
             <div style="margin-top: 2rem;">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem;">Tags additionnels (colonnes CSV)</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;">Tags additionnels (colonnes du fichier)</h3>
                 <div class="tag-container" id="csvTagContainer"></div>
-                
+
                 <h3 style="font-size: 1rem; margin-bottom: 1rem; margin-top: 1.5rem;">Tags manuels (valeur fixe pour tous)</h3>
                 <div class="tag-container" id="manualTagContainer"></div>
                 <div class="add-tag">
@@ -777,7 +1602,7 @@
         </div>
 
         <!-- Preview Section -->
-        <div class="card preview-section hidden" id="previewSection">
+        <div class="card preview-section hidden" id="previewSection" style="max-width: 900px; margin: 1.5rem auto;">
             <h2>Aperçu des données</h2>
             <p style="color: var(--text-dim); font-size: 0.9rem;">
                 <span id="rowCount">0</span> devices à importer
@@ -791,15 +1616,15 @@
         </div>
 
         <!-- Actions -->
-        <div class="actions hidden" id="actionsSection">
+        <div class="actions hidden" id="actionsSection" style="max-width: 900px; margin: 0 auto;">
             <button class="btn-secondary" onclick="resetAll()">Réinitialiser</button>
             <button class="btn-primary" id="importBtn" onclick="startImport()">
-                🚀 Lancer l'import
+                Lancer l'import
             </button>
         </div>
 
         <!-- Results -->
-        <div class="card hidden" id="resultsSection">
+        <div class="card hidden" id="resultsSection" style="max-width: 900px; margin: 1.5rem auto;">
             <h2>Résultats</h2>
             <div class="stats">
                 <div class="stat stat-total">
@@ -836,6 +1661,52 @@
         </div><!-- End step4 -->
     </div>
 
+    <!-- Floating Action Button for Profiles -->
+    <div class="fab-container">
+        <button class="fab" onclick="openProfileModal()" title="Gerer les profils d'import">
+            <span class="fab-icon">&#9881;</span>
+            <span>Profils</span>
+        </button>
+    </div>
+
+    <!-- Profile Management Modal -->
+    <div class="modal-overlay hidden" id="profileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Gestion des profils d'import</h2>
+                <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+
+            <!-- Existing profiles list -->
+            <div class="profile-list" id="profileList">
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Aucun profil enregistre</p>
+            </div>
+
+            <!-- Create/Edit form -->
+            <div style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;" id="profileFormTitle">Nouveau profil</h3>
+
+                <label for="profileName">Nom du profil</label>
+                <input type="text" id="profileName" placeholder="Ex: Import Client A">
+
+                <label>Tags obligatoires</label>
+                <div class="tag-input-container" id="tagInputContainer" onclick="focusTagInput()">
+                    <input type="text" class="tag-input" id="newTagInput" placeholder="Tapez un tag et appuyez sur Entree..." onkeydown="handleTagInput(event)">
+                </div>
+                <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1rem;">
+                    Ces tags devront etre renseignes lors de chaque import utilisant ce profil
+                </p>
+
+                <input type="hidden" id="editingProfileId" value="">
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn-secondary" onclick="resetProfileForm()">Annuler</button>
+                    <button class="btn-primary" onclick="saveProfile()" id="saveProfileBtn">Creer le profil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==================== STATE ====================
         let currentStep = 1;
@@ -851,6 +1722,12 @@
         let selectedTenantId = '';
         let selectedApplicationId = '';
         let selectedApplicationName = '';
+
+        // Profiles
+        let profiles = [];
+        let selectedProfile = null;
+        let profileFormTags = []; // Tags being edited in the form
+        let requiredTagValues = {}; // Values for required tags when importing
 
         // ==================== STEPPER ====================
         function goToStep(step) {
@@ -1103,23 +1980,157 @@
 
         function getSeparator() {
             const selected = document.querySelector('input[name="separator"]:checked');
+            if (selected.value === 'auto') {
+                return detectedSeparator || ';';
+            }
             return selected.value === '\\t' ? '\t' : selected.value;
         }
 
+        let detectedSeparator = null;
+        let currentFileType = null; // 'csv' or 'excel'
+
+        function detectSeparator(content) {
+            // Take first few lines for analysis
+            const lines = content.split('\n').slice(0, 5).filter(line => line.trim());
+            if (lines.length === 0) return ';';
+
+            const separators = [';', ',', '\t'];
+            const scores = {};
+
+            for (const sep of separators) {
+                scores[sep] = 0;
+                const counts = lines.map(line => {
+                    // Count occurrences outside of quoted strings
+                    let count = 0;
+                    let inQuotes = false;
+                    for (let i = 0; i < line.length; i++) {
+                        if (line[i] === '"') inQuotes = !inQuotes;
+                        else if (line[i] === sep && !inQuotes) count++;
+                    }
+                    return count;
+                });
+
+                // Check if all lines have the same number of separators (consistency)
+                const uniqueCounts = [...new Set(counts)];
+                if (uniqueCounts.length === 1 && counts[0] > 0) {
+                    scores[sep] = counts[0] * 10; // High score for consistency
+                } else if (counts.every(c => c > 0)) {
+                    scores[sep] = Math.min(...counts);
+                }
+            }
+
+            // Return the separator with highest score
+            let bestSep = ';';
+            let bestScore = 0;
+            for (const sep of separators) {
+                if (scores[sep] > bestScore) {
+                    bestScore = scores[sep];
+                    bestSep = sep;
+                }
+            }
+
+            return bestSep;
+        }
+
+        function getSeparatorName(sep) {
+            switch(sep) {
+                case ';': return 'point-virgule (;)';
+                case ',': return 'virgule (,)';
+                case '\t': return 'tabulation';
+                default: return sep;
+            }
+        }
+
         function handleFile(file) {
-            if (!file.name.endsWith('.csv')) {
-                alert('Veuillez sélectionner un fichier CSV');
+            const extension = file.name.split('.').pop().toLowerCase();
+            const validExtensions = ['csv', 'xls', 'xlsx'];
+
+            if (!validExtensions.includes(extension)) {
+                alert('Veuillez sélectionner un fichier CSV, XLS ou XLSX');
                 return;
             }
 
-            currentFile = file; // Store for separator changes
+            currentFile = file;
             document.getElementById('fileName').textContent = file.name;
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                parseCSV(e.target.result);
-            };
-            reader.readAsText(file);
+            const separatorSection = document.getElementById('separatorSection');
+            const detectedSeparatorEl = document.getElementById('detectedSeparator');
+
+            if (extension === 'csv') {
+                currentFileType = 'csv';
+                separatorSection.style.display = 'block';
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+
+                    // Auto-detect separator if "Auto" is selected
+                    const selected = document.querySelector('input[name="separator"]:checked');
+                    if (selected.value === 'auto') {
+                        detectedSeparator = detectSeparator(content);
+                        detectedSeparatorEl.textContent = `Séparateur détecté : ${getSeparatorName(detectedSeparator)}`;
+                        detectedSeparatorEl.style.display = 'block';
+                    } else {
+                        detectedSeparatorEl.style.display = 'none';
+                    }
+
+                    parseCSV(content);
+                };
+                reader.readAsText(file);
+            } else {
+                // Excel file (xls or xlsx)
+                currentFileType = 'excel';
+                separatorSection.style.display = 'none';
+                detectedSeparatorEl.style.display = 'none';
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    parseExcel(e.target.result);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function parseExcel(arrayBuffer) {
+            try {
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+                // Get the first sheet
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert to JSON (array of arrays)
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+                if (jsonData.length < 2) {
+                    alert('Le fichier Excel doit contenir au moins une ligne d\'en-tête et une ligne de données');
+                    return;
+                }
+
+                // First row is headers
+                csvHeaders = jsonData[0].map(h => String(h).trim());
+
+                // Rest is data
+                csvData = jsonData.slice(1).map(row => {
+                    const rowObj = {};
+                    csvHeaders.forEach((header, i) => {
+                        rowObj[header] = row[i] !== undefined ? String(row[i]).trim() : '';
+                    });
+                    return rowObj;
+                }).filter(row => Object.values(row).some(v => v !== '')); // Remove empty rows
+
+                populateMappingSelects();
+                populateRequiredTagsSection();
+                updatePreview();
+
+                mappingSection.classList.remove('hidden');
+                previewSection.classList.remove('hidden');
+                actionsSection.classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Excel parsing error:', err);
+                alert('Erreur lors de la lecture du fichier Excel : ' + err.message);
+            }
         }
 
         function parseCSV(content) {
@@ -1142,6 +2153,7 @@
             });
 
             populateMappingSelects();
+            populateRequiredTagsSection();
             updatePreview();
 
             mappingSection.classList.remove('hidden');
@@ -1252,6 +2264,7 @@
 
             const displayFields = ['name', 'dev_eui', 'app_key'];
             const headers = displayFields.filter(f => mapping[f]).map(f => f);
+            if (selectedProfile && selectedProfile.requiredTags.length) headers.push('tags (profil)');
             if (csvTags.length) headers.push('tags (CSV)');
             if (Object.keys(manualTags).length) headers.push('tags (manuels)');
 
@@ -1263,6 +2276,11 @@
                     .filter(f => mapping[f])
                     .map(f => `<td>${row[mapping[f]] || '-'}</td>`);
 
+                if (selectedProfile && selectedProfile.requiredTags.length) {
+                    const profileTags = getRequiredTagsForRow(row);
+                    const tagsStr = Object.entries(profileTags).map(([k,v]) => `${k}: ${v || '?'}`).join(', ');
+                    cells.push(`<td>${tagsStr || '-'}</td>`);
+                }
                 if (csvTags.length) {
                     const tags = csvTags.map(t => `${t}: ${row[t] || ''}`).join(', ');
                     cells.push(`<td>${tags}</td>`);
@@ -1284,6 +2302,11 @@
             const mapping = getMapping();
             if (!mapping.dev_eui) {
                 alert('Le mapping dev_eui est obligatoire');
+                return;
+            }
+
+            // Validate required tags from selected profile
+            if (!validateRequiredTags()) {
                 return;
             }
 
@@ -1315,8 +2338,9 @@
                 const devEui = row[mapping.dev_eui];
                 const deviceName = row[mapping.name] || devEui;
 
-                // Build tags
-                const tags = { ...manualTags };
+                // Build tags: profile required tags + manual tags + csv tags
+                const profileTags = getRequiredTagsForRow(row);
+                const tags = { ...profileTags, ...manualTags };
                 csvTags.forEach(tagCol => {
                     if (row[tagCol]) {
                         tags[tagCol] = row[tagCol];
@@ -1456,6 +2480,10 @@
             csvHeaders = [];
             manualTags = {};
             csvTags = [];
+            requiredTagValues = {};
+            currentFile = null;
+            currentFileType = null;
+            detectedSeparator = null;
 
             document.getElementById('fileName').textContent = '';
             fileInput.value = '';
@@ -1464,16 +2492,407 @@
             actionsSection.classList.add('hidden');
             resultsSection.classList.add('hidden');
             document.getElementById('manualTagContainer').innerHTML = '';
+
+            // Reset separator section
+            document.getElementById('separatorSection').style.display = 'block';
+            document.getElementById('detectedSeparator').style.display = 'none';
+            document.querySelector('input[name="separator"][value="auto"]').checked = true;
+
+            // Reset profile selection
+            document.getElementById('importProfileSelect').value = '';
+            selectedProfile = null;
+            requiredTagValues = {};
+            document.getElementById('requiredTagsSection').classList.add('hidden');
+            document.getElementById('requiredTagsError').classList.add('hidden');
+            document.getElementById('profileSummary').classList.add('hidden');
+
+            // Reset file upload card to disabled state
+            const fileUploadCard = document.getElementById('fileUploadCard');
+            fileUploadCard.style.opacity = '0.5';
+            fileUploadCard.style.pointerEvents = 'none';
+            document.getElementById('profileSelectionHint').style.display = 'block';
         }
 
         // Listen for separator changes
         document.querySelectorAll('input[name="separator"]').forEach(radio => {
             radio.addEventListener('change', () => {
-                if (currentFile) {
-                    handleFile(currentFile);
+                const detectedSeparatorEl = document.getElementById('detectedSeparator');
+
+                if (radio.value === 'auto') {
+                    // Re-detect separator
+                    if (currentFile && currentFileType === 'csv') {
+                        handleFile(currentFile);
+                    }
+                } else {
+                    // Manual selection - hide detected separator message
+                    detectedSeparatorEl.style.display = 'none';
+                    if (currentFile && currentFileType === 'csv') {
+                        // Re-parse with manual separator
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            parseCSV(e.target.result);
+                        };
+                        reader.readAsText(currentFile);
+                    }
                 }
             });
         });
+
+        // ==================== PROFILES ====================
+        async function loadProfiles() {
+            try {
+                const response = await fetch('/api/profiles');
+                const data = await response.json();
+                profiles = data.profiles || [];
+                renderProfileList();
+                renderProfileSelect();
+            } catch (err) {
+                console.error('Failed to load profiles:', err);
+            }
+        }
+
+        function renderProfileList() {
+            const container = document.getElementById('profileList');
+            if (profiles.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-dim); font-size: 0.9rem;">Aucun profil enregistre</p>';
+                return;
+            }
+
+            container.innerHTML = profiles.map(p => `
+                <div class="profile-item">
+                    <div class="profile-item-info">
+                        <div class="profile-item-name">${escapeHtml(p.name)}</div>
+                        <div class="profile-item-tags">${p.requiredTags.length} tag(s): ${p.requiredTags.map(t => escapeHtml(t)).join(', ') || '-'}</div>
+                    </div>
+                    <div class="profile-item-actions">
+                        <button onclick="editProfile('${p.id}')" title="Modifier">&#9998;</button>
+                        <button class="delete" onclick="deleteProfile('${p.id}')" title="Supprimer">&#128465;</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProfileSelect() {
+            const select = document.getElementById('importProfileSelect');
+            const currentValue = select.value; // Preserve current selection
+            select.innerHTML = '<option value="">-- Sélectionnez un profil --</option>' +
+                '<option value="__none__">Sans profil (import simple)</option>' +
+                profiles.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (${p.requiredTags.length} tags)</option>`).join('');
+            // Restore selection if it still exists
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openProfileModal() {
+            document.getElementById('profileModal').classList.remove('hidden');
+            loadProfiles();
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+            resetProfileForm();
+        }
+
+        function focusTagInput() {
+            document.getElementById('newTagInput').focus();
+        }
+
+        function handleTagInput(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = document.getElementById('newTagInput');
+                const tag = input.value.trim();
+                if (tag && !profileFormTags.includes(tag)) {
+                    profileFormTags.push(tag);
+                    renderFormTags();
+                }
+                input.value = '';
+            }
+        }
+
+        function renderFormTags() {
+            const container = document.getElementById('tagInputContainer');
+            const input = document.getElementById('newTagInput');
+
+            // Remove existing tag chips
+            container.querySelectorAll('.tag-chip').forEach(el => el.remove());
+
+            // Add tag chips before the input
+            profileFormTags.forEach(tag => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${escapeHtml(tag)} <button onclick="removeFormTag('${escapeHtml(tag)}')">&times;</button>`;
+                container.insertBefore(chip, input);
+            });
+        }
+
+        function removeFormTag(tag) {
+            profileFormTags = profileFormTags.filter(t => t !== tag);
+            renderFormTags();
+        }
+
+        function resetProfileForm() {
+            document.getElementById('profileName').value = '';
+            document.getElementById('editingProfileId').value = '';
+            document.getElementById('profileFormTitle').textContent = 'Nouveau profil';
+            document.getElementById('saveProfileBtn').textContent = 'Creer le profil';
+            profileFormTags = [];
+            renderFormTags();
+        }
+
+        function editProfile(id) {
+            const profile = profiles.find(p => p.id === id);
+            if (!profile) return;
+
+            document.getElementById('profileName').value = profile.name;
+            document.getElementById('editingProfileId').value = profile.id;
+            document.getElementById('profileFormTitle').textContent = 'Modifier le profil';
+            document.getElementById('saveProfileBtn').textContent = 'Enregistrer';
+            profileFormTags = [...profile.requiredTags];
+            renderFormTags();
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('profileName').value.trim();
+            const editingId = document.getElementById('editingProfileId').value;
+
+            if (!name) {
+                alert('Veuillez entrer un nom de profil');
+                return;
+            }
+
+            const profileData = {
+                name: name,
+                requiredTags: profileFormTags
+            };
+
+            try {
+                let response;
+                if (editingId) {
+                    // Update existing profile
+                    response = await fetch(`/api/profiles/${editingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(profileData)
+                    });
+                } else {
+                    // Create new profile
+                    response = await fetch('/api/profiles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(profileData)
+                    });
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erreur serveur');
+                }
+
+                resetProfileForm();
+                await loadProfiles();
+            } catch (err) {
+                console.error('Save profile error:', err);
+                alert('Erreur lors de la sauvegarde: ' + err.message);
+            }
+        }
+
+        async function deleteProfile(id) {
+            if (!confirm('Supprimer ce profil ?')) return;
+
+            try {
+                await fetch(`/api/profiles/${id}`, { method: 'DELETE' });
+                loadProfiles();
+
+                // Reset selection if this profile was selected
+                if (selectedProfile && selectedProfile.id === id) {
+                    document.getElementById('importProfileSelect').value = '';
+                    onProfileSelected(); // This will reset selectedProfile and disable file upload
+                }
+            } catch (err) {
+                alert('Erreur lors de la suppression: ' + err.message);
+            }
+        }
+
+        function onProfileSelected() {
+            const select = document.getElementById('importProfileSelect');
+            const profileId = select.value;
+            const fileUploadCard = document.getElementById('fileUploadCard');
+            const profileHint = document.getElementById('profileSelectionHint');
+            const profileSummary = document.getElementById('profileSummary');
+
+            // Reset required tags section (will be populated when file is loaded)
+            document.getElementById('requiredTagsSection').classList.add('hidden');
+            document.getElementById('requiredTagsError').classList.add('hidden');
+            requiredTagValues = {};
+
+            // No selection - disable file upload
+            if (!profileId) {
+                selectedProfile = null;
+                fileUploadCard.style.opacity = '0.5';
+                fileUploadCard.style.pointerEvents = 'none';
+                profileHint.style.display = 'block';
+                profileSummary.classList.add('hidden');
+                return;
+            }
+
+            // Profile selected (or "Sans profil") - enable file upload
+            fileUploadCard.style.opacity = '1';
+            fileUploadCard.style.pointerEvents = 'auto';
+            profileHint.style.display = 'none';
+
+            // Handle "Sans profil" option
+            if (profileId === '__none__') {
+                selectedProfile = null;
+                profileSummary.textContent = 'Import simple sans tags obligatoires';
+                profileSummary.classList.remove('hidden');
+                // Update required tags section if file already loaded
+                if (csvData.length > 0) {
+                    populateRequiredTagsSection();
+                }
+                return;
+            }
+
+            // Regular profile selected
+            selectedProfile = profiles.find(p => p.id === profileId);
+            if (selectedProfile) {
+                const tagCount = selectedProfile.requiredTags.length;
+                if (tagCount > 0) {
+                    profileSummary.innerHTML = `Profil <strong style="color: var(--accent);">${escapeHtml(selectedProfile.name)}</strong> — ${tagCount} tag(s) obligatoire(s) : <span style="font-family: 'JetBrains Mono', monospace; color: var(--accent);">${selectedProfile.requiredTags.join(', ')}</span>`;
+                } else {
+                    profileSummary.innerHTML = `Profil <strong style="color: var(--accent);">${escapeHtml(selectedProfile.name)}</strong> — aucun tag obligatoire`;
+                }
+                profileSummary.classList.remove('hidden');
+
+                // Update required tags section if file already loaded
+                if (csvData.length > 0) {
+                    populateRequiredTagsSection();
+                }
+            } else {
+                profileSummary.classList.add('hidden');
+            }
+        }
+
+        function populateRequiredTagsSection() {
+            const section = document.getElementById('requiredTagsSection');
+            const inputsContainer = document.getElementById('requiredTagsInputs');
+            const errorDiv = document.getElementById('requiredTagsError');
+
+            // Hide if no profile or no required tags
+            if (!selectedProfile || selectedProfile.requiredTags.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            // Build inputs for each required tag
+            document.getElementById('requiredTagsTitle').textContent = `Tags obligatoires — ${selectedProfile.name}`;
+
+            inputsContainer.innerHTML = selectedProfile.requiredTags.map(tag => `
+                <div class="required-tag-input">
+                    <label>${escapeHtml(tag)}</label>
+                    <input type="text" id="reqTag_manual_${escapeHtml(tag)}" placeholder="Valeur fixe pour tous" oninput="updateRequiredTagValue('${escapeHtml(tag)}', 'manual', this.value)">
+                    <span class="input-or">ou</span>
+                    <select id="reqTag_csv_${escapeHtml(tag)}" onchange="updateRequiredTagValue('${escapeHtml(tag)}', 'csv', this.value)">
+                        <option value="">-- Colonne du fichier --</option>
+                        ${csvHeaders.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('')}
+                    </select>
+                </div>
+            `).join('');
+
+            section.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
+        }
+
+        function updateRequiredTagValue(tag, type, value) {
+            if (type === 'manual' && value) {
+                // Clear CSV selection when manual value is entered
+                document.getElementById(`reqTag_csv_${tag}`).value = '';
+                requiredTagValues[tag] = { type: 'manual', value: value };
+            } else if (type === 'csv' && value) {
+                // Clear manual input when CSV column is selected
+                document.getElementById(`reqTag_manual_${tag}`).value = '';
+                requiredTagValues[tag] = { type: 'csv', column: value };
+            } else if (!value) {
+                // If value is cleared, remove from required tag values
+                delete requiredTagValues[tag];
+            }
+            // Update preview to show current tag values
+            if (csvData.length > 0) {
+                updatePreview();
+            }
+        }
+
+        function validateRequiredTags() {
+            if (!selectedProfile || selectedProfile.requiredTags.length === 0) {
+                return true;
+            }
+
+            const missingTags = [];
+            for (const tag of selectedProfile.requiredTags) {
+                const tagValue = requiredTagValues[tag];
+                if (!tagValue || (!tagValue.value && !tagValue.column)) {
+                    missingTags.push(tag);
+                }
+            }
+
+            if (missingTags.length > 0) {
+                const errorDiv = document.getElementById('requiredTagsError');
+                errorDiv.innerHTML = `&#9888; Tags obligatoires manquants: ${missingTags.join(', ')}`;
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+
+            document.getElementById('requiredTagsError').classList.add('hidden');
+            return true;
+        }
+
+        function getRequiredTagsForRow(row) {
+            if (!selectedProfile) return {};
+
+            const tags = {};
+            for (const tag of selectedProfile.requiredTags) {
+                const tagConfig = requiredTagValues[tag];
+                if (tagConfig) {
+                    if (tagConfig.type === 'manual') {
+                        tags[tag] = tagConfig.value;
+                    } else if (tagConfig.type === 'csv' && tagConfig.column) {
+                        tags[tag] = row[tagConfig.column] || '';
+                    }
+                }
+            }
+            return tags;
+        }
+
+        // Load profiles on page load
+        loadProfiles();
     </script>
+
+    <!-- Gus Signature Footer -->
+    <footer class="gus-footer">
+        <div class="gus-signature"><span class="gus-prompt">root@gus:~$</span> cat signature.txt<span class="gus-cursor">█</span>
+<span class="gus-ascii">  ██████╗ ██╗   ██╗███████╗
+ ██╔════╝ ██║   ██║██╔════╝
+ ██║  ███╗██║   ██║███████╗
+ ██║   ██║██║   ██║╚════██║
+ ╚██████╔╝╚██████╔╝███████║
+  ╚═════╝  ╚═════╝ ╚══════╝</span>
+<span class="gus-line">╔════════════════════════════╗</span>
+<span class="gus-line">║</span>    <span class="gus-title">G U S  ·  D E V</span>       <span class="gus-line">║</span>
+<span class="gus-line">╠════════════════════════════╣</span>
+<span class="gus-line">║</span> <span class="gus-bullet">▸</span> Niagara / GTB / LoRaWAN <span class="gus-line">║</span>
+<span class="gus-line">║</span> <span class="gus-bullet">▸</span> Device API Integration  <span class="gus-line">║</span>
+<span class="gus-line">║</span> <span class="gus-bullet">▸</span> Custom Payload Decode   <span class="gus-line">║</span>
+<span class="gus-line">╠════════════════════════════╣</span>
+<span class="gus-line">║</span>    (c) Crafted by Gus     <span class="gus-line">║</span>
+<span class="gus-line">║</span> <span class="gus-warning">⚠</span> Me payer un café svp ! <span class="gus-line">║</span>
+<span class="gus-line">╚════════════════════════════╝</span></div>
+    </footer>
 </body>
 </html>

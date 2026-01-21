@@ -1,0 +1,16 @@
+{
+  "profiles": [
+    {
+      "id": "04e10d60-a728-47d3-ad06-41523f5ecf96",
+      "name": "CHCM",
+      "requiredTags": [
+        "Site",
+        "Batiment",
+        "Etage",
+        "Emplacement"
+      ],
+      "createdAt": "2026-01-21T12:51:03.920304Z",
+      "updatedAt": "2026-01-21T12:51:03.920304Z"
+    }
+  ]
+}
