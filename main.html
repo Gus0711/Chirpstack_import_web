@@ -3471,10 +3471,8 @@
                 const gatewaysData = await apiCall(`/api/gateways?tenant_id=${tenantId}&limit=100`);
                 const gateways = gatewaysData.result || [];
 
-                // Calculate device stats
+                // Calculate device stats based on lastSeenAt (24h threshold like ChirpStack)
                 const now = new Date();
-                const activeThreshold = 24 * 60 * 60 * 1000; // 24 hours
-
                 let activeCount = 0;
                 let inactiveCount = 0;
                 let neverSeenCount = 0;
@@ -3484,8 +3482,8 @@
                         neverSeenCount++;
                     } else {
                         const lastSeen = new Date(device.lastSeenAt);
-                        const diff = now - lastSeen;
-                        if (diff < activeThreshold) {
+                        const diffHours = (now - lastSeen) / (1000 * 60 * 60);
+                        if (diffHours <= 24) {
                             activeCount++;
                         } else {
                             inactiveCount++;
@@ -3493,17 +3491,19 @@
                     }
                 });
 
-                // Calculate active gateways
+                console.log(`Dashboard - Total: ${allDevices.length}, Active: ${activeCount}, Inactive: ${inactiveCount}, Never seen: ${neverSeenCount}`);
+
+                // Calculate active gateways using state field (ONLINE/OFFLINE)
                 let activeGateways = 0;
                 gateways.forEach(gw => {
-                    if (gw.lastSeenAt) {
-                        const lastSeen = new Date(gw.lastSeenAt);
-                        const diff = now - lastSeen;
-                        if (diff < activeThreshold) {
-                            activeGateways++;
-                        }
+                    // ChirpStack v4 uses 'state' field: "ONLINE" or "OFFLINE" or "NEVER_SEEN"
+                    if (gw.state === 'ONLINE') {
+                        activeGateways++;
                     }
                 });
+
+                console.log(`Dashboard - Devices: active=${activeCount}, inactive=${inactiveCount}, neverSeen=${neverSeenCount}`);
+                console.log(`Dashboard - Gateways: active=${activeGateways}/${gateways.length}`);
 
                 // Update UI
                 document.getElementById('dashActiveDevices').textContent = activeCount;

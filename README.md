@@ -5,11 +5,14 @@ Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier
 ## Fonctionnalités
 
 - **Upload CSV/Excel** : Drag & drop ou sélection de fichier (formats CSV, XLS, XLSX)
+- **Import manuel** : Ajout de 1 à 5 devices sans fichier CSV
 - **Détection automatique** : Séparateur CSV (`;`, `,`, `tab`) modifiable à la volée
 - **Auto-mapping** : Détection intelligente des colonnes (dev_eui, app_key, name, etc.)
 - **Mapping manuel** : Association personnalisée des colonnes CSV aux champs ChirpStack
 - **Tags** : Support des tags depuis colonnes CSV ou valeurs fixes manuelles
 - **Détection clé API** : Distingue automatiquement clé admin vs clé tenant
+- **Dashboard tenant** : Statistiques devices (actifs/inactifs/jamais vus) et gateways
+- **Serveurs sauvegardés** : Mémorisation des URLs de serveurs pour accès rapide
 - **Gestion erreurs** : Messages d'erreur clairs + correction sans revenir en arrière
 - **Profils d'import** : Gestion de profils avec tags obligatoires (stockage serveur)
 - **Validation des tags** : Vérification automatique des tags requis avant import
@@ -58,9 +61,14 @@ Puis ouvrir : **http://localhost:8000**
 
 ### Étape 1 : Connexion
 
-1. Entrer l'**URL ChirpStack** (ex: `http://192.168.1.10:8080`)
+1. Entrer l'**URL ChirpStack** (ex: `http://192.168.1.10:8080`) ou sélectionner un serveur sauvegardé
 2. Entrer le **Token API**
 3. Cliquer sur **"Tester la connexion"**
+
+**Serveurs sauvegardés :**
+- Utiliser le menu déroulant pour sélectionner un serveur enregistré
+- Cliquer sur **"+"** pour sauvegarder un nouveau serveur (nom + URL)
+- Seules les URLs sont stockées, jamais les tokens (sécurité)
 
 **Comportement selon le type de clé :**
 
@@ -72,11 +80,23 @@ Puis ouvrir : **http://localhost:8000**
 > **Où trouver le Tenant ID ?**
 > Dans l'URL ChirpStack : `/#/tenants/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/...`
 
+**Dashboard tenant :**
+
+À la sélection du tenant, un dashboard s'affiche avec :
+- **Devices actifs** : vus dans les dernières 24h
+- **Devices inactifs** : non vus depuis plus de 24h
+- **Devices jamais vus** : aucune communication enregistrée
+- **Gateways** : nombre de gateways actives / total
+
 ### Étape 2 : Sélection Application
 
 Sélectionner l'application cible dans la liste déroulante.
 
-### Étape 3 : Import CSV/Excel
+### Étape 3 : Import des devices
+
+Deux modes d'import disponibles :
+
+#### Mode Fichier (CSV/Excel)
 
 1. **Profil d'import** : Sélectionner un profil d'import (obligatoire) — définit les tags requis
 2. **Device Profile** : Sélectionner un Device Profile (optionnel si présent dans le fichier)
@@ -86,6 +106,19 @@ Sélectionner l'application cible dans la liste déroulante.
 6. **Tags obligatoires** : Remplir les tags requis par le profil sélectionné
 7. **Tags additionnels** : Ajouter des tags depuis colonnes ou manuellement
 8. **Import** : Cliquer sur "Lancer l'import"
+
+#### Mode Manuel (1-5 devices)
+
+Pour importer quelques devices sans créer de fichier CSV :
+
+1. **Profil d'import** : Sélectionner un profil (obligatoire pour les tags requis)
+2. **Device Profile** : Sélectionner le Device Profile
+3. **Basculer en mode manuel** : Cliquer sur "Saisie manuelle"
+4. **Ajouter des devices** : Remplir DevEUI, AppKey (optionnel), Nom, Description
+5. **Tags obligatoires** : Remplir les valeurs des tags requis par le profil
+6. **Import** : Cliquer sur "Importer X device(s)"
+
+> **Note** : Le mode manuel est limité à 5 devices. Pour plus, utiliser un fichier CSV/Excel.
 
 ---
 
@@ -323,8 +356,10 @@ docker run -d --restart=always -p 8000:8000 chirpstack-importer
 | `/api/tenants` | GET | Liste des tenants (admin uniquement) |
 | `/api/applications` | GET | Liste des applications d'un tenant |
 | `/api/device-profiles` | GET | Liste des device profiles d'un tenant |
+| `/api/devices` | GET | Liste des devices d'une application (dashboard) |
 | `/api/devices` | POST | Création d'un device |
 | `/api/devices/{dev_eui}/keys` | POST | Ajout des clés (app_key) |
+| `/api/gateways` | GET | Liste des gateways d'un tenant (dashboard) |
 
 ## API locale (profils)
 
