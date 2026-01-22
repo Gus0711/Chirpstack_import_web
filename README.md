@@ -339,6 +339,20 @@ Le serveur Python expose une API REST pour la gestion des profils d'import :
 
 Les profils sont stockés dans `profiles.json`.
 
+## API locale (serveurs)
+
+Gestion des serveurs ChirpStack sauvegardés (URLs uniquement, pas les tokens) :
+
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/api/servers` | GET | Liste tous les serveurs sauvegardés |
+| `/api/servers` | POST | Sauvegarde un nouveau serveur |
+| `/api/servers/{id}` | DELETE | Supprime un serveur |
+
+Les serveurs sont stockés dans `servers.json` (non versionné pour sécurité).
+
+> **Note sécurité** : Seules les URLs sont stockées, jamais les tokens API.
+
 ---
 
 ## Licence

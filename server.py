@@ -18,6 +18,7 @@ from urllib.parse import urlparse, parse_qs
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
 PROFILES_FILE = 'profiles.json'
+SERVERS_FILE = 'servers.json'
 
 
 def load_profiles():
@@ -36,6 +37,24 @@ def save_profiles(data):
     with open(PROFILES_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+
+def load_servers():
+    """Load servers from JSON file"""
+    if not os.path.exists(SERVERS_FILE):
+        return {"servers": []}
+    try:
+        with open(SERVERS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {"servers": []}
+
+
+def save_servers(data):
+    """Save servers to JSON file"""
+    with open(SERVERS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
 class ProxyHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_OPTIONS(self):
@@ -52,6 +71,8 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
             self.proxy_request('GET')
         elif self.path == '/api/profiles' or self.path.startswith('/api/profiles?'):
             self.handle_get_profiles()
+        elif self.path == '/api/servers' or self.path.startswith('/api/servers?'):
+            self.handle_get_servers()
         else:
             # Serve static files
             if self.path == '/':
@@ -68,11 +89,23 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response)
 
+    def handle_get_servers(self):
+        """Return all saved servers"""
+        data = load_servers()
+        response = json.dumps(data).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+
     def do_POST(self):
         if self.path.startswith('/proxy/'):
             self.proxy_request('POST')
         elif self.path == '/api/profiles':
             self.handle_create_profile()
+        elif self.path == '/api/servers':
+            self.handle_create_server()
         else:
             self.send_error(404)
 
@@ -106,6 +139,47 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
         save_profiles(data)
 
         response = json.dumps(new_profile).encode('utf-8')
+        self.send_response(201)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def handle_create_server(self):
+        """Create a new saved server"""
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length)
+
+        try:
+            server_data = json.loads(body.decode('utf-8'))
+        except json.JSONDecodeError:
+            self.send_json_error(400, 'Invalid JSON')
+            return
+
+        if not server_data.get('name') or not server_data.get('url'):
+            self.send_json_error(400, 'Server name and URL are required')
+            return
+
+        data = load_servers()
+        now = datetime.utcnow().isoformat() + 'Z'
+
+        # Check if URL already exists
+        for server in data['servers']:
+            if server['url'] == server_data['url']:
+                self.send_json_error(409, 'Server URL already exists')
+                return
+
+        new_server = {
+            'id': str(uuid.uuid4()),
+            'name': server_data['name'],
+            'url': server_data['url'],
+            'createdAt': now
+        }
+
+        data['servers'].append(new_server)
+        save_servers(data)
+
+        response = json.dumps(new_server).encode('utf-8')
         self.send_response(201)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(response))
@@ -160,6 +234,8 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
             self.proxy_request('DELETE')
         elif self.path.startswith('/api/profiles/'):
             self.handle_delete_profile()
+        elif self.path.startswith('/api/servers/'):
+            self.handle_delete_server()
         else:
             self.send_error(404)
 
@@ -176,6 +252,26 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         save_profiles(data)
+        response = json.dumps({'success': True}).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def handle_delete_server(self):
+        """Delete a saved server"""
+        server_id = self.path.split('/api/servers/')[-1]
+
+        data = load_servers()
+        original_length = len(data['servers'])
+        data['servers'] = [s for s in data['servers'] if s['id'] != server_id]
+
+        if len(data['servers']) == original_length:
+            self.send_json_error(404, 'Server not found')
+            return
+
+        save_servers(data)
         response = json.dumps({'success': True}).encode('utf-8')
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')

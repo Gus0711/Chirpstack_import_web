@@ -64,30 +64,8 @@
             position: relative;
         }
 
-        /* Animated grid background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image:
-                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: -1;
-            animation: grid-move 20s linear infinite;
-        }
-
-        @keyframes grid-move {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
         /* Subtle gradient overlay */
-        body::after {
+        body::before {
             content: '';
             position: fixed;
             top: 0;
@@ -97,6 +75,258 @@
             background: radial-gradient(ellipse at top, rgba(0, 212, 170, 0.05) 0%, transparent 50%);
             pointer-events: none;
             z-index: -1;
+        }
+
+        /* LoRa Signal Animation Container */
+        .lora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+            opacity: 0.4;
+        }
+
+        /* Device icon */
+        .lora-device {
+            position: absolute;
+            bottom: 15%;
+            left: 8%;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 4px;
+            opacity: 0.6;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+        }
+
+        .lora-device::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+        }
+
+        /* Gateway icon */
+        .lora-gateway {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            width: 40px;
+            height: 50px;
+            opacity: 0.6;
+        }
+
+        .lora-gateway::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 25px;
+            background: var(--accent);
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+        }
+
+        .lora-gateway::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 25px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Signal waves from device */
+        .signal-wave {
+            position: absolute;
+            bottom: 15%;
+            left: 8%;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: wave-expand 4s ease-out infinite;
+        }
+
+        .signal-wave:nth-child(2) { animation-delay: 1s; }
+        .signal-wave:nth-child(3) { animation-delay: 2s; }
+        .signal-wave:nth-child(4) { animation-delay: 3s; }
+
+        @keyframes wave-expand {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(25);
+                opacity: 0;
+            }
+        }
+
+        /* Traveling signal dot */
+        .signal-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            opacity: 0;
+            animation: travel-signal 4s ease-in-out infinite;
+        }
+
+        .signal-dot:nth-child(6) { animation-delay: 1.5s; }
+        .signal-dot:nth-child(7) { animation-delay: 3s; }
+
+        @keyframes travel-signal {
+            0% {
+                bottom: 15%;
+                left: 10%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                bottom: 75%;
+                left: 88%;
+                opacity: 0;
+            }
+        }
+
+        /* Second device - bottom right */
+        .lora-device-2 {
+            position: absolute;
+            bottom: 25%;
+            right: 25%;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 4px;
+            opacity: 0.4;
+            box-shadow: 0 0 15px rgba(0, 212, 170, 0.3);
+        }
+
+        .lora-device-2::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+        }
+
+        /* Signal waves from device 2 */
+        .signal-wave-2 {
+            position: absolute;
+            bottom: 25%;
+            right: 25%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: wave-expand-2 5s ease-out infinite;
+        }
+
+        .signal-wave-2:nth-child(9) { animation-delay: 1.25s; }
+        .signal-wave-2:nth-child(10) { animation-delay: 2.5s; }
+        .signal-wave-2:nth-child(11) { animation-delay: 3.75s; }
+
+        @keyframes wave-expand-2 {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(15);
+                opacity: 0;
+            }
+        }
+
+        /* Traveling signal from device 2 */
+        .signal-dot-2 {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            opacity: 0;
+            animation: travel-signal-2 5s ease-in-out infinite;
+        }
+
+        .signal-dot-2:nth-child(13) { animation-delay: 2s; }
+
+        @keyframes travel-signal-2 {
+            0% {
+                bottom: 26%;
+                right: 26%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                top: 22%;
+                right: 11%;
+                bottom: auto;
+                opacity: 0;
+            }
+        }
+
+        /* Receiving pulse on gateway */
+        .gateway-pulse {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            width: 40px;
+            height: 50px;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            opacity: 0;
+            animation: gateway-receive 4s ease-out infinite;
+        }
+
+        .gateway-pulse:nth-child(15) { animation-delay: 1.5s; }
+
+        @keyframes gateway-receive {
+            0%, 90% {
+                transform: scale(1);
+                opacity: 0;
+            }
+            95% {
+                transform: scale(1.2);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
         }
 
         .container {
@@ -1167,6 +1397,527 @@
             color: var(--accent);
         }
 
+        /* Tenant Dashboard */
+        .tenant-dashboard {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), rgba(0, 212, 170, 0.02));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .tenant-dashboard.loading {
+            opacity: 0.6;
+        }
+
+        .tenant-dashboard h4 {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tenant-dashboard h4 svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .dashboard-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-stat:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+
+        .dashboard-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .dashboard-stat.active .dashboard-stat-value {
+            color: var(--success);
+            text-shadow: 0 0 15px rgba(0, 212, 170, 0.4);
+        }
+
+        .dashboard-stat.inactive .dashboard-stat-value {
+            color: var(--warning);
+        }
+
+        .dashboard-stat.never .dashboard-stat-value {
+            color: var(--text-dim);
+        }
+
+        .dashboard-stat.gateway .dashboard-stat-value {
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(0, 212, 170, 0.4);
+        }
+
+        .dashboard-stat.error .dashboard-stat-value {
+            color: var(--error);
+        }
+
+        /* Server Selector */
+        .server-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+
+        .server-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .server-input-wrapper input {
+            padding-right: 2.5rem;
+        }
+
+        .server-select-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-70%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .server-select-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .server-select-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .save-server-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+            margin-top: 1.5rem;
+        }
+
+        .save-server-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .save-server-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Server dropdown */
+        .server-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 4px;
+            z-index: 100;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            max-height: 250px;
+            overflow-y: auto;
+            animation: dropdown-show 0.2s ease;
+        }
+
+        @keyframes dropdown-show {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .server-dropdown.hidden {
+            display: none;
+        }
+
+        .server-dropdown-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .server-dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .server-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .server-dropdown-item:hover {
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .server-dropdown-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .server-dropdown-item-name {
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.2rem;
+        }
+
+        .server-dropdown-item-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .server-dropdown-item-delete {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+            margin-left: 0.5rem;
+            opacity: 0;
+        }
+
+        .server-dropdown-item:hover .server-dropdown-item-delete {
+            opacity: 1;
+        }
+
+        .server-dropdown-item-delete:hover {
+            color: var(--error);
+            background: rgba(255, 92, 92, 0.1);
+        }
+
+        .server-dropdown-empty {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Save server modal */
+        .save-server-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            z-index: 1001;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: modal-slide-up 0.3s ease;
+        }
+
+        .save-server-modal.hidden {
+            display: none;
+        }
+
+        .save-server-modal h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .save-server-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .save-server-modal-backdrop.hidden {
+            display: none;
+        }
+
+        /* Import Mode Toggle */
+        .import-mode-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 4px;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .import-mode-toggle.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .mode-btn:hover {
+            color: var(--text);
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+            box-shadow: 0 2px 10px rgba(0, 212, 170, 0.3);
+        }
+
+        .mode-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Manual Entry Form */
+        .manual-entry-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .manual-device-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .manual-device-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+
+        .manual-device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .manual-device-header h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-device-header h4 span {
+            background: var(--accent);
+            color: var(--bg-dark);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .remove-device-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .remove-device-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+            background: rgba(255, 92, 92, 0.1);
+        }
+
+        .manual-device-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .manual-device-fields .field-full {
+            grid-column: 1 / -1;
+        }
+
+        .manual-device-fields label {
+            margin-bottom: 0.3rem;
+        }
+
+        .manual-device-fields input {
+            margin-bottom: 0;
+        }
+
+        .manual-device-tags {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border);
+        }
+
+        .manual-device-tags h5 {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .manual-tags-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .manual-tag-field label {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .manual-tag-field input {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+        }
+
+        /* Add device button */
+        .add-device-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .add-device-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .add-device-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .add-device-btn:disabled:hover {
+            border-color: var(--border);
+            color: var(--text-dim);
+            background: transparent;
+        }
+
+        .device-counter {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .device-counter span {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         /* Required tags section - in mapping */
         .required-tag-input {
             display: grid;
@@ -1382,6 +2133,33 @@
     </style>
 </head>
 <body>
+    <!-- LoRa Signal Background Animation -->
+    <div class="lora-bg">
+        <!-- Device 1 (bottom left) -->
+        <div class="lora-device"></div>
+        <div class="signal-wave"></div>
+        <div class="signal-wave"></div>
+        <div class="signal-wave"></div>
+        <div class="signal-wave"></div>
+        <div class="signal-dot"></div>
+        <div class="signal-dot"></div>
+        <div class="signal-dot"></div>
+
+        <!-- Device 2 (bottom right) -->
+        <div class="lora-device-2"></div>
+        <div class="signal-wave-2"></div>
+        <div class="signal-wave-2"></div>
+        <div class="signal-wave-2"></div>
+        <div class="signal-wave-2"></div>
+        <div class="signal-dot-2"></div>
+        <div class="signal-dot-2"></div>
+
+        <!-- Gateway (top right) -->
+        <div class="lora-gateway"></div>
+        <div class="gateway-pulse"></div>
+        <div class="gateway-pulse"></div>
+    </div>
+
     <div class="container">
         <header>
             <h1>ChirpStack CSV Importer</h1>
@@ -1415,7 +2193,27 @@
                 </div>
 
                 <label for="apiUrl">URL ChirpStack</label>
-                <input type="text" id="apiUrl" placeholder="http://localhost:8090" value="http://localhost:8090">
+                <div class="server-input-group">
+                    <div class="server-input-wrapper">
+                        <input type="text" id="apiUrl" placeholder="http://localhost:8090" value="http://localhost:8090">
+                        <button class="server-select-btn" onclick="toggleServerDropdown()" title="Serveurs sauvegardés">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="server-dropdown hidden" id="serverDropdown">
+                            <div class="server-dropdown-header">Serveurs sauvegardés</div>
+                            <div id="serverDropdownList">
+                                <div class="server-dropdown-empty">Aucun serveur sauvegardé</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="save-server-btn" onclick="openSaveServerModal()" title="Sauvegarder ce serveur">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
 
                 <label for="apiToken">Token API</label>
                 <input type="password" id="apiToken" placeholder="Votre token (sans Bearer)...">
@@ -1424,7 +2222,7 @@
                 <div id="tenantSection" class="hidden">
                     <label for="tenantSelect">Tenant</label>
                     <div class="select-wrapper">
-                        <select id="tenantSelect">
+                        <select id="tenantSelect" onchange="onTenantSelected()">
                             <option value="">-- Sélectionnez un tenant --</option>
                         </select>
                     </div>
@@ -1440,6 +2238,34 @@
                 </div>
 
                 <div id="connectionStatus"></div>
+
+                <!-- Tenant Dashboard - shown after successful connection -->
+                <div id="tenantDashboard" class="tenant-dashboard hidden">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Dashboard Tenant
+                    </h4>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-stat active">
+                            <div class="dashboard-stat-value" id="dashActiveDevices">-</div>
+                            <div class="dashboard-stat-label">Devices actifs</div>
+                        </div>
+                        <div class="dashboard-stat inactive">
+                            <div class="dashboard-stat-value" id="dashInactiveDevices">-</div>
+                            <div class="dashboard-stat-label">Inactifs</div>
+                        </div>
+                        <div class="dashboard-stat never">
+                            <div class="dashboard-stat-value" id="dashNeverSeenDevices">-</div>
+                            <div class="dashboard-stat-label">Jamais vus</div>
+                        </div>
+                        <div class="dashboard-stat gateway">
+                            <div class="dashboard-stat-value" id="dashActiveGateways">-</div>
+                            <div class="dashboard-stat-label">Gateways</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div style="margin-top: 1.5rem; text-align: center;">
                     <button class="btn-primary" id="btnTestConnection" onclick="testConnection()">Tester la connexion</button>
@@ -1517,6 +2343,22 @@
                 <div style="margin-top: 1rem;">
                     <button class="btn-secondary btn-small" onclick="goToStep(1)">Modifier connexion</button>
                 </div>
+
+                <!-- Import Mode Toggle -->
+                <div class="import-mode-toggle disabled" id="importModeToggle">
+                    <button class="mode-btn active" data-mode="file" onclick="setImportMode('file')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Import fichier
+                    </button>
+                    <button class="mode-btn" data-mode="manual" onclick="setImportMode('manual')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Ajout manuel
+                    </button>
+                </div>
             </div>
 
             <!-- Upload file card - Initially disabled -->
@@ -1541,6 +2383,38 @@
                         <label><input type="radio" name="separator" value="\t"> Tabulation</label>
                     </div>
                     <p id="detectedSeparator" style="font-size: 0.8rem; color: var(--accent); margin-top: -0.5rem; display: none;"></p>
+                </div>
+            </div>
+
+            <!-- Manual Entry Container - Hidden by default -->
+            <div class="manual-entry-container hidden" id="manualEntryContainer">
+                <div class="card">
+                    <h2>Ajout manuel de devices</h2>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Ajoutez jusqu'à 5 devices manuellement. Pour plus, utilisez l'import fichier.
+                    </p>
+
+                    <div id="manualDevicesList">
+                        <!-- Devices will be added here dynamically -->
+                    </div>
+
+                    <button class="add-device-btn" id="addDeviceBtn" onclick="addManualDevice()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Ajouter un device
+                    </button>
+
+                    <div class="device-counter">
+                        <span id="deviceCount">0</span> / 5 devices
+                    </div>
+
+                    <div class="actions" style="border-top: none; padding-top: 0; margin-top: 0;">
+                        <button class="btn-secondary" onclick="clearManualDevices()">Tout effacer</button>
+                        <button class="btn-primary" id="importManualBtn" onclick="importManualDevices()" disabled>
+                            Importer les devices
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1667,6 +2541,26 @@
             <span class="fab-icon">&#9881;</span>
             <span>Profils</span>
         </button>
+    </div>
+
+    <!-- Save Server Modal -->
+    <div class="save-server-modal-backdrop hidden" id="saveServerBackdrop" onclick="closeSaveServerModal()"></div>
+    <div class="save-server-modal hidden" id="saveServerModal">
+        <h3>Sauvegarder le serveur</h3>
+
+        <label for="serverUrlInput">URL du serveur</label>
+        <input type="text" id="serverUrlInput" placeholder="http://192.168.1.10:8080">
+
+        <label for="serverName">Nom (pour l'identifier)</label>
+        <input type="text" id="serverName" placeholder="Ex: Production, Test, Dev...">
+
+        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -0.5rem; margin-bottom: 1rem;">
+            ⚠ Seule l'URL est sauvegardée, jamais le token.
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button class="btn-secondary btn-small" onclick="closeSaveServerModal()">Annuler</button>
+            <button class="btn-primary btn-small" onclick="saveServer()">Sauvegarder</button>
+        </div>
     </div>
 
     <!-- Profile Management Modal -->
@@ -1827,6 +2721,7 @@
             document.getElementById('tenantSection').classList.add('hidden');
             document.getElementById('tenantManualSection').classList.add('hidden');
             document.getElementById('btnContinueStep2').classList.add('hidden');
+            hideTenantDashboard();
 
             try {
                 // Try to fetch tenants (works only with admin key)
@@ -1873,6 +2768,11 @@
             if (!selectedTenantId) {
                 alert('Veuillez sélectionner ou saisir un Tenant ID');
                 return;
+            }
+
+            // Load dashboard if not already shown (for tenant keys)
+            if (!isAdminKey) {
+                loadTenantDashboard(selectedTenantId);
             }
 
             setConnectionStatus('loading', 'Chargement des applications...');
@@ -2538,6 +3438,273 @@
             });
         });
 
+        // ==================== TENANT DASHBOARD ====================
+        async function loadTenantDashboard(tenantId) {
+            const dashboard = document.getElementById('tenantDashboard');
+            dashboard.classList.remove('hidden');
+            dashboard.classList.add('loading');
+
+            // Reset values
+            document.getElementById('dashActiveDevices').textContent = '-';
+            document.getElementById('dashInactiveDevices').textContent = '-';
+            document.getElementById('dashNeverSeenDevices').textContent = '-';
+            document.getElementById('dashActiveGateways').textContent = '-';
+
+            try {
+                // First, fetch all applications for this tenant
+                const appsData = await apiCall(`/api/applications?tenant_id=${tenantId}&limit=100`);
+                const apps = appsData.result || [];
+
+                // Fetch devices from all applications
+                let allDevices = [];
+                for (const app of apps) {
+                    try {
+                        const devicesData = await apiCall(`/api/devices?application_id=${app.id}&limit=1000`);
+                        const devices = devicesData.result || [];
+                        allDevices = allDevices.concat(devices);
+                    } catch (e) {
+                        console.warn(`Could not fetch devices for app ${app.id}:`, e);
+                    }
+                }
+
+                // Fetch all gateways for this tenant
+                const gatewaysData = await apiCall(`/api/gateways?tenant_id=${tenantId}&limit=100`);
+                const gateways = gatewaysData.result || [];
+
+                // Calculate device stats
+                const now = new Date();
+                const activeThreshold = 24 * 60 * 60 * 1000; // 24 hours
+
+                let activeCount = 0;
+                let inactiveCount = 0;
+                let neverSeenCount = 0;
+
+                allDevices.forEach(device => {
+                    if (!device.lastSeenAt) {
+                        neverSeenCount++;
+                    } else {
+                        const lastSeen = new Date(device.lastSeenAt);
+                        const diff = now - lastSeen;
+                        if (diff < activeThreshold) {
+                            activeCount++;
+                        } else {
+                            inactiveCount++;
+                        }
+                    }
+                });
+
+                // Calculate active gateways
+                let activeGateways = 0;
+                gateways.forEach(gw => {
+                    if (gw.lastSeenAt) {
+                        const lastSeen = new Date(gw.lastSeenAt);
+                        const diff = now - lastSeen;
+                        if (diff < activeThreshold) {
+                            activeGateways++;
+                        }
+                    }
+                });
+
+                // Update UI
+                document.getElementById('dashActiveDevices').textContent = activeCount;
+                document.getElementById('dashInactiveDevices').textContent = inactiveCount;
+                document.getElementById('dashNeverSeenDevices').textContent = neverSeenCount;
+                document.getElementById('dashActiveGateways').textContent = `${activeGateways}/${gateways.length}`;
+
+                dashboard.classList.remove('loading');
+
+            } catch (err) {
+                console.error('Dashboard error:', err);
+                dashboard.classList.remove('loading');
+                // Keep showing dashboard with placeholder values
+                document.getElementById('dashActiveDevices').textContent = '?';
+                document.getElementById('dashInactiveDevices').textContent = '?';
+                document.getElementById('dashNeverSeenDevices').textContent = '?';
+                document.getElementById('dashActiveGateways').textContent = '?';
+            }
+        }
+
+        function hideTenantDashboard() {
+            document.getElementById('tenantDashboard').classList.add('hidden');
+        }
+
+        function onTenantSelected() {
+            const tenantId = document.getElementById('tenantSelect').value;
+            if (tenantId) {
+                loadTenantDashboard(tenantId);
+            } else {
+                hideTenantDashboard();
+            }
+        }
+
+        // ==================== SAVED SERVERS ====================
+        let savedServers = [];
+
+        async function loadSavedServers() {
+            try {
+                const response = await fetch('/api/servers');
+                const data = await response.json();
+                savedServers = data.servers || [];
+                renderServerDropdown();
+            } catch (err) {
+                console.error('Failed to load servers:', err);
+            }
+        }
+
+        function renderServerDropdown() {
+            const container = document.getElementById('serverDropdownList');
+            if (savedServers.length === 0) {
+                container.innerHTML = '<div class="server-dropdown-empty">Aucun serveur sauvegardé</div>';
+                return;
+            }
+
+            container.innerHTML = savedServers.map((server, index) => `
+                <div class="server-dropdown-item" data-server-index="${index}">
+                    <div class="server-dropdown-item-info">
+                        <div class="server-dropdown-item-name">${escapeHtml(server.name)}</div>
+                        <div class="server-dropdown-item-url">${escapeHtml(server.url)}</div>
+                    </div>
+                    <button class="server-dropdown-item-delete" data-server-id="${server.id}" title="Supprimer">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // Event delegation for server dropdown - initialize after DOM ready
+        function initServerDropdownEvents() {
+            const dropdownList = document.getElementById('serverDropdownList');
+            if (dropdownList) {
+                dropdownList.addEventListener('click', function(e) {
+                    console.log('Click in dropdown list', e.target);
+
+                    const deleteBtn = e.target.closest('.server-dropdown-item-delete');
+                    if (deleteBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const serverId = deleteBtn.dataset.serverId;
+                        console.log('Delete server:', serverId);
+                        deleteServer(serverId);
+                        return;
+                    }
+
+                    const item = e.target.closest('.server-dropdown-item');
+                    if (item) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const index = parseInt(item.dataset.serverIndex);
+                        console.log('Select server index:', index, savedServers[index]);
+                        if (!isNaN(index) && savedServers[index]) {
+                            selectServer(savedServers[index].url);
+                        }
+                    }
+                });
+                console.log('Server dropdown events initialized');
+            }
+        }
+
+        function toggleServerDropdown() {
+            const dropdown = document.getElementById('serverDropdown');
+            dropdown.classList.toggle('hidden');
+
+            // Close on click outside
+            if (!dropdown.classList.contains('hidden')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeServerDropdownOnClickOutside);
+                }, 0);
+            }
+        }
+
+        function closeServerDropdownOnClickOutside(e) {
+            const dropdown = document.getElementById('serverDropdown');
+            const wrapper = document.querySelector('.server-input-wrapper');
+            const selectBtn = document.querySelector('.server-select-btn');
+
+            // Don't close if clicking inside dropdown or on the toggle button
+            if (wrapper.contains(e.target)) {
+                return;
+            }
+
+            dropdown.classList.add('hidden');
+            document.removeEventListener('click', closeServerDropdownOnClickOutside);
+        }
+
+        function selectServer(url) {
+            console.log('Selecting server:', url);
+            document.getElementById('apiUrl').value = url;
+            document.getElementById('serverDropdown').classList.add('hidden');
+            document.removeEventListener('click', closeServerDropdownOnClickOutside);
+        }
+
+        function openSaveServerModal() {
+            const currentUrl = document.getElementById('apiUrl').value.trim();
+
+            document.getElementById('serverUrlInput').value = currentUrl;
+            document.getElementById('serverName').value = '';
+            document.getElementById('saveServerBackdrop').classList.remove('hidden');
+            document.getElementById('saveServerModal').classList.remove('hidden');
+            document.getElementById('serverName').focus();
+        }
+
+        function closeSaveServerModal() {
+            document.getElementById('saveServerBackdrop').classList.add('hidden');
+            document.getElementById('saveServerModal').classList.add('hidden');
+        }
+
+        async function saveServer() {
+            const name = document.getElementById('serverName').value.trim();
+            const url = document.getElementById('serverUrlInput').value.trim();
+
+            if (!url) {
+                alert('Veuillez entrer l\'URL du serveur');
+                return;
+            }
+
+            if (!name) {
+                alert('Veuillez entrer un nom pour identifier le serveur');
+                return;
+            }
+
+            // Check if URL already exists
+            if (savedServers.some(s => s.url === url)) {
+                alert('Ce serveur est déjà sauvegardé');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/servers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, url })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert(err.error || 'Erreur lors de la sauvegarde');
+                    return;
+                }
+
+                closeSaveServerModal();
+                await loadSavedServers();
+            } catch (err) {
+                console.error('Save server error:', err);
+                alert('Erreur lors de la sauvegarde');
+            }
+        }
+
+        async function deleteServer(serverId) {
+            if (!confirm('Supprimer ce serveur ?')) return;
+
+            try {
+                await fetch(`/api/servers/${serverId}`, { method: 'DELETE' });
+                await loadSavedServers();
+            } catch (err) {
+                console.error('Delete server error:', err);
+            }
+        }
+
+        // Load saved servers on page load
+        loadSavedServers();
+        initServerDropdownEvents();
+
         // ==================== PROFILES ====================
         async function loadProfiles() {
             try {
@@ -2869,6 +4036,311 @@
             }
             return tags;
         }
+
+        // ==================== MANUAL MODE ====================
+        let currentImportMode = 'file';
+        let manualDevices = [];
+        const MAX_MANUAL_DEVICES = 5;
+
+        function setImportMode(mode) {
+            currentImportMode = mode;
+
+            // Update toggle buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            // Show/hide appropriate containers
+            const fileUploadCard = document.getElementById('fileUploadCard');
+            const manualContainer = document.getElementById('manualEntryContainer');
+            const mappingSection = document.getElementById('mappingSection');
+
+            if (mode === 'file') {
+                fileUploadCard.classList.remove('hidden');
+                manualContainer.classList.add('hidden');
+                // Re-enable file upload if profile is selected
+                if (selectedProfile || document.getElementById('importProfileSelect').value === '__none__') {
+                    fileUploadCard.style.opacity = '1';
+                    fileUploadCard.style.pointerEvents = 'auto';
+                }
+            } else {
+                fileUploadCard.classList.add('hidden');
+                mappingSection.classList.add('hidden');
+                manualContainer.classList.remove('hidden');
+                // Initialize with one device if empty
+                if (manualDevices.length === 0) {
+                    addManualDevice();
+                }
+            }
+        }
+
+        function addManualDevice() {
+            if (manualDevices.length >= MAX_MANUAL_DEVICES) return;
+
+            const deviceId = Date.now();
+            manualDevices.push({ id: deviceId });
+            renderManualDevices();
+            updateDeviceCounter();
+            updateImportManualBtn();
+        }
+
+        function removeManualDevice(deviceId) {
+            manualDevices = manualDevices.filter(d => d.id !== deviceId);
+            renderManualDevices();
+            updateDeviceCounter();
+            updateImportManualBtn();
+        }
+
+        function renderManualDevices() {
+            const container = document.getElementById('manualDevicesList');
+            const requiredTags = selectedProfile ? selectedProfile.requiredTags : [];
+
+            container.innerHTML = manualDevices.map((device, index) => `
+                <div class="manual-device-card" data-device-id="${device.id}">
+                    <div class="manual-device-header">
+                        <h4><span>${index + 1}</span> Device</h4>
+                        ${manualDevices.length > 1 ? `
+                            <button class="remove-device-btn" onclick="removeManualDevice(${device.id})" title="Supprimer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="manual-device-fields">
+                        <div>
+                            <label>DevEUI <span style="color: var(--error);">*</span></label>
+                            <input type="text"
+                                   class="manual-deveui"
+                                   placeholder="70B3D52DD3000001"
+                                   maxlength="16"
+                                   oninput="this.value = this.value.toUpperCase().replace(/[^0-9A-F]/g, ''); updateImportManualBtn();">
+                        </div>
+                        <div>
+                            <label>Nom</label>
+                            <input type="text"
+                                   class="manual-name"
+                                   placeholder="Capteur-${index + 1}">
+                        </div>
+                        <div class="field-full">
+                            <label>AppKey (optionnel)</label>
+                            <input type="text"
+                                   class="manual-appkey"
+                                   placeholder="2B7E151628AED2A6ABF7158809CF4F3C"
+                                   maxlength="32"
+                                   oninput="this.value = this.value.toUpperCase().replace(/[^0-9A-F]/g, '');">
+                        </div>
+                    </div>
+                    ${requiredTags.length > 0 ? `
+                        <div class="manual-device-tags">
+                            <h5>Tags obligatoires (${selectedProfile.name})</h5>
+                            <div class="manual-tags-grid">
+                                ${requiredTags.map(tag => `
+                                    <div class="manual-tag-field">
+                                        <label>${escapeHtml(tag)} <span style="color: var(--error);">*</span></label>
+                                        <input type="text"
+                                               class="manual-tag"
+                                               data-tag="${escapeHtml(tag)}"
+                                               placeholder="${escapeHtml(tag)}"
+                                               oninput="updateImportManualBtn();">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Update add button state
+            document.getElementById('addDeviceBtn').disabled = manualDevices.length >= MAX_MANUAL_DEVICES;
+        }
+
+        function updateDeviceCounter() {
+            document.getElementById('deviceCount').textContent = manualDevices.length;
+        }
+
+        function updateImportManualBtn() {
+            const btn = document.getElementById('importManualBtn');
+            const isValid = validateManualDevices(false);
+            btn.disabled = !isValid;
+        }
+
+        function validateManualDevices(showErrors = true) {
+            const cards = document.querySelectorAll('.manual-device-card');
+            let isValid = true;
+            const requiredTags = selectedProfile ? selectedProfile.requiredTags : [];
+
+            if (cards.length === 0) return false;
+
+            cards.forEach(card => {
+                const deveuiInput = card.querySelector('.manual-deveui');
+                const deveui = deveuiInput.value.trim();
+
+                // Check DevEUI
+                if (!deveui || deveui.length !== 16) {
+                    isValid = false;
+                    if (showErrors) {
+                        deveuiInput.style.borderColor = 'var(--error)';
+                    }
+                } else {
+                    deveuiInput.style.borderColor = '';
+                }
+
+                // Check required tags
+                requiredTags.forEach(tag => {
+                    const tagInput = card.querySelector(`.manual-tag[data-tag="${tag}"]`);
+                    if (tagInput) {
+                        const value = tagInput.value.trim();
+                        if (!value) {
+                            isValid = false;
+                            if (showErrors) {
+                                tagInput.style.borderColor = 'var(--error)';
+                            }
+                        } else {
+                            tagInput.style.borderColor = '';
+                        }
+                    }
+                });
+            });
+
+            return isValid;
+        }
+
+        function clearManualDevices() {
+            if (manualDevices.length === 0) return;
+            if (!confirm('Effacer tous les devices ?')) return;
+
+            manualDevices = [];
+            renderManualDevices();
+            updateDeviceCounter();
+            addManualDevice(); // Add one empty device
+        }
+
+        async function importManualDevices() {
+            if (!validateManualDevices(true)) {
+                alert('Veuillez remplir tous les champs obligatoires (DevEUI + tags du profil)');
+                return;
+            }
+
+            const cards = document.querySelectorAll('.manual-device-card');
+            const devices = [];
+            const requiredTags = selectedProfile ? selectedProfile.requiredTags : [];
+
+            cards.forEach(card => {
+                const deveui = card.querySelector('.manual-deveui').value.trim();
+                const name = card.querySelector('.manual-name').value.trim() || deveui;
+                const appkey = card.querySelector('.manual-appkey').value.trim();
+
+                const tags = {};
+                requiredTags.forEach(tag => {
+                    const tagInput = card.querySelector(`.manual-tag[data-tag="${tag}"]`);
+                    if (tagInput) {
+                        tags[tag] = tagInput.value.trim();
+                    }
+                });
+
+                devices.push({ deveui, name, appkey, tags });
+            });
+
+            // Get device profile
+            const selectedDP = getSelectedDeviceProfile();
+            if (!selectedDP || !selectedDP.id) {
+                alert('Veuillez sélectionner un Device Profile');
+                return;
+            }
+
+            // Show results section
+            document.getElementById('mappingSection').classList.add('hidden');
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.classList.remove('hidden');
+
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '';
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            log(`Début de l'import manuel de ${devices.length} device(s)...`, 'info');
+            log(`Application: ${document.getElementById('summaryApp').textContent}`, 'info');
+            log(`Device Profile: ${selectedDP.name}`, 'info');
+            log('─'.repeat(40), 'info');
+
+            for (const device of devices) {
+                try {
+                    // Create device
+                    const devicePayload = {
+                        device: {
+                            dev_eui: device.deveui,
+                            name: device.name,
+                            description: '',
+                            application_id: selectedApplicationId,
+                            device_profile_id: selectedDP.id,
+                            is_disabled: false,
+                            tags: device.tags
+                        }
+                    };
+
+                    await apiCall('/api/devices', 'POST', devicePayload);
+
+                    // Add keys if appkey provided
+                    if (device.appkey) {
+                        const keysPayload = {
+                            device_keys: {
+                                dev_eui: device.deveui,
+                                nwk_key: device.appkey,
+                                app_key: device.appkey
+                            }
+                        };
+                        await apiCall(`/api/devices/${device.deveui}/keys`, 'POST', keysPayload);
+                    }
+
+                    log(`✓ ${device.name} (${device.deveui})`, 'success');
+                    successCount++;
+
+                } catch (error) {
+                    const errorMsg = parseApiError(error.message || String(error));
+                    log(`✗ ${device.name} (${device.deveui}): ${errorMsg}`, 'error');
+                    errorCount++;
+                }
+            }
+
+            log('─'.repeat(40), 'info');
+            log(`Import terminé: ${successCount} succès, ${errorCount} erreur(s)`, successCount > 0 && errorCount === 0 ? 'success' : 'info');
+
+            // Update stats
+            document.getElementById('statSuccess').textContent = successCount;
+            document.getElementById('statError').textContent = errorCount;
+            document.getElementById('statTotal').textContent = devices.length;
+
+            // Clear manual devices on full success
+            if (errorCount === 0 && successCount > 0) {
+                manualDevices = [];
+                renderManualDevices();
+                updateDeviceCounter();
+                addManualDevice();
+            }
+        }
+
+        // Update onProfileSelected to enable/disable mode toggle
+        const originalOnProfileSelected = onProfileSelected;
+        onProfileSelected = function() {
+            originalOnProfileSelected();
+
+            const toggle = document.getElementById('importModeToggle');
+            const profileId = document.getElementById('importProfileSelect').value;
+
+            if (profileId) {
+                toggle.classList.remove('disabled');
+            } else {
+                toggle.classList.add('disabled');
+            }
+
+            // Re-render manual devices if in manual mode (to update tags)
+            if (currentImportMode === 'manual') {
+                renderManualDevices();
+                updateImportManualBtn();
+            }
+        };
 
         // Load profiles on page load
         loadProfiles();
