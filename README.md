@@ -297,20 +297,42 @@ nssm start ChirpStackImporter
 3. Déclencheur : "Au démarrage"
 4. Action : Démarrer `python.exe` avec argument `C:\path\server.py`
 
-### Option 3 : Docker
+### Option 3 : Docker (recommandé)
 
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY main.html server.py profiles.json* ./
-EXPOSE 8000
-CMD ["python", "server.py"]
-```
+Une configuration Docker complète est disponible dans le dossier `docker/`.
+
+**Déploiement :**
 
 ```bash
-docker build -t chirpstack-importer .
-docker run -d --restart=always -p 8000:8000 chirpstack-importer
+git clone https://github.com/augustmusic/Chirpstack_import_web.git
+cd Chirpstack_import_web/docker
+docker compose up -d --build
 ```
+
+L'application est accessible sur `http://IP_SERVEUR:4000`
+
+**Mise à jour :**
+
+```bash
+cd Chirpstack_import_web
+git pull
+cd docker
+docker compose up -d --build
+```
+
+**Commandes utiles :**
+
+```bash
+docker compose logs -f      # Voir les logs
+docker compose restart      # Redémarrer
+docker compose down         # Arrêter
+```
+
+**Avantages :**
+- Redémarrage automatique au boot du serveur
+- Données persistantes (volume Docker)
+- Health check intégré (`/health`)
+- Isolation complète
 
 ---
 
