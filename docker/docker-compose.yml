@@ -1,0 +1,22 @@
+# ChirpStack CSV Importer - Docker Compose
+#
+# Usage (depuis le dossier docker/):
+#   docker compose up -d --build    # Build et démarrer
+#   docker compose logs -f          # Voir les logs
+#   docker compose down             # Arrêter
+#   docker compose restart          # Redémarrer
+
+services:
+  chirpstack-importer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: chirpstack-importer
+    restart: unless-stopped
+    ports:
+      - "4000:8000"
+    volumes:
+      - importer-data:/app/data
+
+volumes:
+  importer-data:

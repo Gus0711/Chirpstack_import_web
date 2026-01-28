@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+venv
+.venv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Données locales (seront dans le volume)
+profiles.json
+servers.json
+
+# Logs
+*.log
