@@ -28,6 +28,9 @@ Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier
 
 ---
 
+<img width="972" height="946" alt="image" src="https://github.com/user-attachments/assets/f0c7b378-5b1c-4722-9fad-ce2912f7cddb" />
+
+
 ## Installation
 
 ### Fichiers requis
