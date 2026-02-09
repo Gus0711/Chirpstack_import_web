@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChirpStack CSV Importer</title>
+    <title>ChirpStack Device Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
@@ -2130,6 +2130,267 @@
             color: var(--accent);
             opacity: 0.7;
         }
+
+        /* ==================== TOOLS HUB ==================== */
+        .tools-hub-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .tools-hub-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .tools-hub-grid { grid-template-columns: 1fr; }
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tool-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 212, 170, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card svg {
+            width: 40px;
+            height: 40px;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .tool-card p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .tool-subview {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tool-subview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-subview-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .btn-back {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), #ff3333);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 10px rgba(255, 92, 92, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 92, 92, 0.4);
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.75rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00e6b8);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Delete tool */
+        .delete-search {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .delete-search:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .delete-actions-bar {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .selection-count {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .device-checkbox {
+            width: auto !important;
+            margin: 0 !important;
+            cursor: pointer;
+        }
+
+        /* Warning box */
+        .warning-box {
+            background: rgba(255, 184, 77, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        /* Tag update drop zone */
+        .drop-zone-small {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone-small:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+        }
+
+        .drop-zone-small svg {
+            width: 32px;
+            height: 32px;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .drop-zone-small p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .mode-selector label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .mode-selector label:hover {
+            border-color: var(--accent);
+        }
+
+        .mode-selector input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .mode-selector input[type="radio"]:checked + span {
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -2162,8 +2423,8 @@
 
     <div class="container">
         <header>
-            <h1>ChirpStack CSV Importer</h1>
-            <p>Import devices LoRaWAN depuis un fichier CSV, XLS ou XLSX</p>
+            <h1>ChirpStack Device Manager</h1>
+            <p>Import, export et gestion de devices LoRaWAN</p>
         </header>
 
         <!-- Stepper -->
@@ -2180,7 +2441,7 @@
             <div class="step-connector"></div>
             <div class="step" data-step="3">
                 <div class="step-number">3</div>
-                <span class="step-label">Import CSV</span>
+                <span class="step-label">Outils</span>
             </div>
         </div>
 
@@ -2296,8 +2557,64 @@
             </div>
         </div>
 
-        <!-- Step 3: Import CSV -->
+        <!-- Step 3: Outils -->
         <div class="step-content" id="step3">
+
+            <!-- Tools Hub -->
+            <div id="toolsHub">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">
+                        Application : <span id="hubAppName" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                        &nbsp;|&nbsp;
+                        <button class="btn-secondary btn-small" onclick="goToStep(2)" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Changer</button>
+                    </p>
+                </div>
+                <div class="tools-hub-grid">
+                    <div class="tool-card" onclick="showTool('import')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <h3>Import</h3>
+                        <p>Importer des devices depuis un fichier CSV/XLSX ou manuellement</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('export')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3>Export</h3>
+                        <p>Exporter les devices de l'application en CSV ou XLSX</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('delete')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <h3>Supprimer en masse</h3>
+                        <p>Selectionner et supprimer plusieurs devices</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('tagUpdate')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <h3>Mise a jour des tags</h3>
+                        <p>Modifier les tags de vos devices en masse via CSV/XLSX</p>
+                    </div>
+                    <div class="tool-card" onclick="openTemplateModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3>Template CSV</h3>
+                        <p>Telecharger un modele CSV pre-configure pour l'import</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== IMPORT SUB-VIEW ====== -->
+            <div id="importSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Import de devices</h2>
+                </div>
+
             <!-- Configuration card -->
             <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
                 <h2>Configuration</h2>
@@ -2475,6 +2792,25 @@
             </div>
         </div>
 
+        <!-- Duplicate Detection Section -->
+        <div class="card hidden" id="duplicateSection" style="max-width: 900px; margin: 1.5rem auto;">
+            <h2>Doublons detectes</h2>
+            <p id="duplicateSummary" style="color: var(--warning); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+            <div class="preview-table" style="max-height: 300px; overflow-y: auto;">
+                <table id="duplicateTable">
+                    <thead>
+                        <tr><th>DevEUI</th><th>Nom existant</th><th>Nom CSV</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="actions" style="margin-top: 1rem;">
+                <button class="btn-secondary" onclick="cancelDuplicateImport()">Annuler</button>
+                <button class="btn-primary" onclick="importIgnoringDuplicates()">Ignorer les doublons</button>
+                <button class="btn-danger" onclick="importOverwritingDuplicates()">Ecraser (supprimer + recreer)</button>
+            </div>
+        </div>
+
         <!-- Preview Section -->
         <div class="card preview-section hidden" id="previewSection" style="max-width: 900px; margin: 1.5rem auto;">
             <h2>Aperçu des données</h2>
@@ -2532,7 +2868,141 @@
 
             <div class="log-container" id="logContainer"></div>
         </div>
-        </div><!-- End step4 -->
+            </div><!-- End importSubView -->
+
+            <!-- ====== EXPORT SUB-VIEW ====== -->
+            <div id="exportSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Export de devices</h2>
+                </div>
+                <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Application : <span id="exportAppName" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                    </p>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="exportIncludeKeys">
+                        <label for="exportIncludeKeys" style="margin-bottom: 0;">Inclure les cles (nwkKey / appKey)</label>
+                    </div>
+                    <div class="warning-box hidden" id="exportKeysWarning">
+                        Les cles seront visibles en clair dans le fichier exporte. Ne partagez pas ce fichier sans precaution.
+                    </div>
+                    <label>Format d'export</label>
+                    <div class="mode-selector">
+                        <label><input type="radio" name="exportFormat" value="csv" checked> <span>CSV</span></label>
+                        <label><input type="radio" name="exportFormat" value="xlsx"> <span>XLSX (Excel)</span></label>
+                    </div>
+                    <button class="btn-primary" id="btnLoadExport" onclick="loadDevicesForExport()">Charger les devices</button>
+                    <div id="exportProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="exportProgressText">Chargement...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="exportProgressBar"></div></div>
+                    </div>
+                </div>
+                <div class="card hidden" id="exportPreviewCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <h2>Apercu</h2>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+                        <span id="exportDeviceCount">0</span> devices charges
+                    </p>
+                    <div class="preview-table" style="max-height: 300px; overflow-y: auto;">
+                        <table id="exportPreviewTable"><thead></thead><tbody></tbody></table>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn-primary" onclick="downloadExport()">Telecharger</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== DELETE SUB-VIEW ====== -->
+            <div id="deleteSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Suppression en masse</h2>
+                </div>
+                <div class="card" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <button class="btn-primary" id="btnLoadDelete" onclick="loadDevicesForDelete()">Charger les devices</button>
+                    <div id="deleteProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="deleteProgressText">Chargement...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="deleteProgressBar"></div></div>
+                    </div>
+                </div>
+                <div class="card hidden" id="deleteListCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <input type="text" class="delete-search" placeholder="Rechercher par nom ou DevEUI..." oninput="filterDeleteList(this.value)">
+                    <div class="delete-actions-bar">
+                        <button class="btn-secondary btn-small" onclick="selectAllForDeletion()">Tout selectionner</button>
+                        <button class="btn-secondary btn-small" onclick="deselectAll()">Tout deselectionner</button>
+                        <span class="selection-count"><span id="deleteSelectionCount">0</span> device(s) selectionne(s)</span>
+                    </div>
+                    <div class="preview-table" style="max-height: 400px; overflow-y: auto;">
+                        <table id="deleteTable">
+                            <thead>
+                                <tr><th style="width:40px;"></th><th>Nom</th><th>DevEUI</th><th>Profil</th><th>Dernier vu</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn-danger" id="btnBulkDelete" onclick="confirmBulkDelete()" disabled>Supprimer la selection</button>
+                    </div>
+                </div>
+                <div class="card hidden" id="deleteResultsCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <h2>Resultats de suppression</h2>
+                    <div id="deleteResultProgress" class="hidden" style="margin-bottom: 1rem;">
+                        <p class="progress-text" id="deleteResultProgressText">Suppression...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="deleteResultProgressBar"></div></div>
+                    </div>
+                    <div class="log-container" id="deleteLogContainer"></div>
+                </div>
+            </div>
+
+            <!-- ====== TAG UPDATE SUB-VIEW ====== -->
+            <div id="tagUpdateSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Mise a jour des tags</h2>
+                </div>
+                <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
+                    <div class="info-box" style="margin-bottom: 1rem;">
+                        Importez un fichier CSV/XLSX contenant une colonne <code>dev_eui</code> et des colonnes de tags.
+                        Les tags seront mis a jour pour chaque device trouve.
+                    </div>
+                    <label>Mode de mise a jour</label>
+                    <div class="mode-selector">
+                        <label><input type="radio" name="tagUpdateMode" value="merge" checked> <span>Fusionner (ajouter/modifier)</span></label>
+                        <label><input type="radio" name="tagUpdateMode" value="replace"> <span>Remplacer (supprimer les anciens)</span></label>
+                    </div>
+                    <div class="drop-zone-small" id="tagUpdateDropZone">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p>Glissez votre fichier ou <strong>cliquez pour parcourir</strong></p>
+                        <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem;">CSV, XLS, XLSX</p>
+                        <div class="filename" id="tagUpdateFileName"></div>
+                    </div>
+                    <input type="file" id="tagUpdateFileInput" accept=".csv,.xls,.xlsx" style="display: none;">
+                </div>
+                <div class="card hidden" id="tagUpdatePreviewCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <h2>Apercu des modifications</h2>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        <span id="tagUpdateCount">0</span> devices a modifier — Colonnes de tags : <span id="tagUpdateCols" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                    </p>
+                    <div class="preview-table" style="max-height: 300px; overflow-y: auto;">
+                        <table id="tagUpdatePreviewTable"><thead></thead><tbody></tbody></table>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn-primary" onclick="startTagUpdate()">Lancer la mise a jour</button>
+                    </div>
+                </div>
+                <div class="card hidden" id="tagUpdateResultsCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <h2>Resultats</h2>
+                    <div id="tagUpdateProgress" class="hidden" style="margin-bottom: 1rem;">
+                        <p class="progress-text" id="tagUpdateProgressText">Mise a jour...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="tagUpdateProgressBar"></div></div>
+                    </div>
+                    <div class="log-container" id="tagUpdateLogContainer"></div>
+                </div>
+            </div>
+
+        </div><!-- End step3 -->
     </div>
 
     <!-- Floating Action Button for Profiles -->
@@ -2560,6 +3030,53 @@
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
             <button class="btn-secondary btn-small" onclick="closeSaveServerModal()">Annuler</button>
             <button class="btn-primary btn-small" onclick="saveServer()">Sauvegarder</button>
+        </div>
+    </div>
+
+    <!-- Template CSV Modal -->
+    <div class="modal-overlay hidden" id="templateModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Template CSV</h2>
+                <button class="modal-close" onclick="closeTemplateModal()">&times;</button>
+            </div>
+            <label for="templateDpSelect">Device Profile (optionnel)</label>
+            <div class="select-wrapper">
+                <select id="templateDpSelect">
+                    <option value="">-- Aucun (colonne device_profile_id incluse) --</option>
+                </select>
+            </div>
+            <label for="templateProfileSelect">Profil d'import (optionnel)</label>
+            <div class="select-wrapper">
+                <select id="templateProfileSelect">
+                    <option value="">-- Aucun --</option>
+                </select>
+            </div>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1rem;">
+                Le template contiendra les colonnes de base + les tags du profil selectionne.
+            </p>
+            <div style="text-align: center;">
+                <button class="btn-primary" onclick="downloadCsvTemplate()">Telecharger le template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay hidden" id="deleteConfirmModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2>Confirmer la suppression</h2>
+                <button class="modal-close" onclick="closeDeleteConfirmModal()">&times;</button>
+            </div>
+            <p style="color: var(--error); font-size: 0.95rem; margin-bottom: 1rem;">
+                Vous allez supprimer <strong id="deleteConfirmCount">0</strong> device(s). Cette action est irreversible.
+            </p>
+            <label for="deleteConfirmInput">Tapez le nombre <strong id="deleteConfirmNumber" style="color: var(--error);">0</strong> pour confirmer :</label>
+            <input type="text" id="deleteConfirmInput" placeholder="..." style="margin-bottom: 1rem;">
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <button class="btn-secondary btn-small" onclick="closeDeleteConfirmModal()">Annuler</button>
+                <button class="btn-danger btn-small" onclick="executeBulkDelete()">Supprimer</button>
+            </div>
         </div>
     </div>
 
@@ -2678,7 +3195,8 @@
                 const text = await response.text();
                 throw new Error(`${response.status}: ${text}`);
             }
-            return response.json();
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
         }
 
         function setConnectionStatus(type, message) {
@@ -2827,17 +3345,20 @@
             document.getElementById('summaryTenant').textContent = selectedTenantId.substring(0, 8) + '...';
             document.getElementById('summaryApp').textContent = selectedApplicationName;
 
+            // Update hub app name
+            document.getElementById('hubAppName').textContent = selectedApplicationName;
+
             // Populate device profile select for step 3
             const dpSelect = document.getElementById('deviceProfileSelect');
-            console.log('Device Profiles:', deviceProfiles); // Debug
             if (deviceProfiles.length === 0) {
                 dpSelect.innerHTML = '<option value="">Aucun Device Profile disponible</option>';
             } else {
                 dpSelect.innerHTML = '<option value="">-- Sélectionnez (ou utilisez CSV) --</option>' +
                     deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
             }
-            console.log('Select options:', dpSelect.innerHTML); // Debug
 
+            // Show hub (not a specific tool)
+            backToToolsHub();
             goToStep(3);
         }
 
@@ -3208,6 +3729,21 @@
             // Validate required tags from selected profile
             if (!validateRequiredTags()) {
                 return;
+            }
+
+            // Check for duplicates before import (only on first run, not retry)
+            if (!retryMode) {
+                document.getElementById('importBtn').disabled = true;
+                resultsSection.classList.remove('hidden');
+                const logContainer = document.getElementById('logContainer');
+                logContainer.innerHTML = '';
+
+                const hasDupes = await checkDuplicates();
+                if (hasDupes) {
+                    showDuplicateSection();
+                    return; // User will choose action via buttons
+                }
+                resultsSection.classList.add('hidden');
             }
 
             resultsSection.classList.remove('hidden');
@@ -4341,6 +4877,754 @@
                 updateImportManualBtn();
             }
         };
+
+        // ==================== TOOLS HUB NAVIGATION ====================
+        function showTool(toolName) {
+            document.getElementById('toolsHub').classList.add('hidden');
+            // Hide all subviews
+            document.querySelectorAll('#step3 > .tool-subview').forEach(el => el.classList.add('hidden'));
+            // Show the target
+            const viewId = toolName + 'SubView';
+            const view = document.getElementById(viewId);
+            if (view) view.classList.remove('hidden');
+        }
+
+        function backToToolsHub() {
+            document.querySelectorAll('#step3 > .tool-subview').forEach(el => el.classList.add('hidden'));
+            document.getElementById('toolsHub').classList.remove('hidden');
+        }
+
+        // ==================== SHARED UTILITIES ====================
+        async function loadAllDevicesFromApp(applicationId, progressCallback) {
+            let allDevices = [];
+            let offset = 0;
+            const limit = 100;
+            let total = 0;
+
+            do {
+                const data = await apiCall(`/api/devices?applicationId=${applicationId}&limit=${limit}&offset=${offset}`);
+                const devices = data.result || [];
+                total = parseInt(data.totalCount) || 0;
+                allDevices = allDevices.concat(devices);
+                offset += devices.length;
+                if (progressCallback) progressCallback(allDevices.length, total);
+                if (devices.length === 0) break;
+            } while (allDevices.length < total);
+
+            return allDevices;
+        }
+
+        function triggerDownload(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==================== TEMPLATE CSV (Phase 2) ====================
+        function openTemplateModal() {
+            // Populate device profile select
+            const dpSelect = document.getElementById('templateDpSelect');
+            dpSelect.innerHTML = '<option value="">-- Aucun (colonne device_profile_id incluse) --</option>' +
+                deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+
+            // Populate profile select
+            const profSelect = document.getElementById('templateProfileSelect');
+            profSelect.innerHTML = '<option value="">-- Aucun --</option>' +
+                profiles.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (${p.requiredTags.length} tags)</option>`).join('');
+
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        function downloadCsvTemplate() {
+            const dpId = document.getElementById('templateDpSelect').value;
+            const profileId = document.getElementById('templateProfileSelect').value;
+
+            // Base columns
+            let columns = ['name', 'dev_eui', 'description', 'app_key'];
+            if (!dpId) columns.push('device_profile_id');
+
+            // Add profile required tags
+            const selectedProf = profiles.find(p => p.id === profileId);
+            if (selectedProf) {
+                selectedProf.requiredTags.forEach(tag => {
+                    if (!columns.includes(tag)) columns.push(tag);
+                });
+            }
+
+            // Build CSV
+            const header = columns.join(';');
+            const example = columns.map(col => {
+                switch(col) {
+                    case 'name': return 'Capteur-001';
+                    case 'dev_eui': return '70B3D52DD3000001';
+                    case 'description': return 'Mon capteur';
+                    case 'app_key': return '2B7E151628AED2A6ABF7158809CF4F3C';
+                    case 'device_profile_id': return dpId || 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+                    default: return 'valeur_' + col;
+                }
+            }).join(';');
+
+            const csv = header + '\n' + example + '\n';
+            triggerDownload(csv, 'template_chirpstack.csv', 'text/csv;charset=utf-8;');
+            closeTemplateModal();
+        }
+
+        // ==================== DUPLICATE DETECTION (Phase 3) ====================
+        let existingDeviceEuis = new Set();
+        let duplicatesFound = [];
+        let importRowsAfterDuplicateCheck = [];
+        let duplicateAction = null; // 'ignore' or 'overwrite'
+
+        async function checkDuplicates() {
+            const mapping = getMapping();
+            if (!mapping.dev_eui) return false;
+
+            // Load all existing devices
+            log('Verification des doublons...', 'info');
+            let allExisting;
+            try {
+                allExisting = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    log(`  Chargement: ${loaded}/${total} devices existants`, 'info');
+                });
+            } catch (err) {
+                log(`Impossible de verifier les doublons: ${err.message}`, 'error');
+                return false; // Continue import without duplicate check
+            }
+
+            existingDeviceEuis = new Set(allExisting.map(d => d.devEui.toLowerCase()));
+
+            // Find duplicates in CSV
+            duplicatesFound = [];
+            const existingMap = {};
+            allExisting.forEach(d => { existingMap[d.devEui.toLowerCase()] = d; });
+
+            csvData.forEach(row => {
+                const devEui = (row[mapping.dev_eui] || '').toLowerCase();
+                if (existingDeviceEuis.has(devEui)) {
+                    duplicatesFound.push({
+                        devEui: devEui,
+                        existingName: existingMap[devEui] ? existingMap[devEui].name : '?',
+                        csvName: row[mapping.name] || devEui,
+                        row: row
+                    });
+                }
+            });
+
+            return duplicatesFound.length > 0;
+        }
+
+        function showDuplicateSection() {
+            const section = document.getElementById('duplicateSection');
+            const mapping = getMapping();
+            document.getElementById('duplicateSummary').textContent =
+                `${duplicatesFound.length} doublon(s) detecte(s) sur ${csvData.length} devices`;
+
+            const tbody = document.querySelector('#duplicateTable tbody');
+            tbody.innerHTML = duplicatesFound.map(d => `
+                <tr>
+                    <td>${d.devEui}</td>
+                    <td>${escapeHtml(d.existingName)}</td>
+                    <td>${escapeHtml(d.csvName)}</td>
+                </tr>
+            `).join('');
+
+            section.classList.remove('hidden');
+        }
+
+        function cancelDuplicateImport() {
+            document.getElementById('duplicateSection').classList.add('hidden');
+            document.getElementById('importBtn').disabled = false;
+        }
+
+        function importIgnoringDuplicates() {
+            document.getElementById('duplicateSection').classList.add('hidden');
+            duplicateAction = 'ignore';
+            executeImportWithDuplicateHandling();
+        }
+
+        function importOverwritingDuplicates() {
+            document.getElementById('duplicateSection').classList.add('hidden');
+            duplicateAction = 'overwrite';
+            executeImportWithDuplicateHandling();
+        }
+
+        async function executeImportWithDuplicateHandling() {
+            const mapping = getMapping();
+            const duplicateEuis = new Set(duplicatesFound.map(d => d.devEui));
+
+            resultsSection.classList.remove('hidden');
+            document.getElementById('fixDeviceProfileSection').classList.add('hidden');
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '';
+            failedRows = [];
+            hasDeviceProfileError = false;
+
+            let success = 0;
+            let errors = 0;
+            let skipped = 0;
+            const total = csvData.length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('importBtn').disabled = true;
+
+            for (let i = 0; i < csvData.length; i++) {
+                const row = csvData[i];
+                const devEui = (row[mapping.dev_eui] || '').toLowerCase();
+                const deviceName = row[mapping.name] || devEui;
+                const isDuplicate = duplicateEuis.has(devEui);
+
+                if (isDuplicate && duplicateAction === 'ignore') {
+                    log(`⊘ ${deviceName} (${devEui}): ignore (doublon)`, 'info');
+                    skipped++;
+                    continue;
+                }
+
+                if (isDuplicate && duplicateAction === 'overwrite') {
+                    // Delete existing device first
+                    try {
+                        await apiCall(`/api/devices/${devEui}`, 'DELETE');
+                        log(`  ↳ ${deviceName}: ancien device supprime`, 'info');
+                    } catch (delErr) {
+                        log(`  ⚠ ${deviceName}: echec suppression: ${delErr.message}`, 'error');
+                        errors++;
+                        document.getElementById('statError').textContent = errors;
+                        continue;
+                    }
+                }
+
+                // Build tags
+                const profileTags = getRequiredTagsForRow(row);
+                const tags = { ...profileTags, ...manualTags };
+                csvTags.forEach(tagCol => {
+                    if (row[tagCol]) tags[tagCol] = row[tagCol];
+                });
+
+                let deviceProfileId = '';
+                const selectedDP = getSelectedDeviceProfile();
+                deviceProfileId = selectedDP.id;
+                if (!deviceProfileId && mapping.device_profile_id) {
+                    deviceProfileId = row[mapping.device_profile_id];
+                }
+
+                const devicePayload = {
+                    device: {
+                        application_id: selectedApplicationId,
+                        name: deviceName,
+                        description: mapping.description ? row[mapping.description] : '',
+                        dev_eui: devEui,
+                        device_profile_id: deviceProfileId || '',
+                        tags: tags
+                    }
+                };
+
+                try {
+                    await apiCall('/api/devices', 'POST', devicePayload);
+                    log(`✓ Device ${deviceName} cree`, 'success');
+
+                    if (mapping.app_key && row[mapping.app_key]) {
+                        try {
+                            await apiCall(`/api/devices/${devEui}/keys`, 'POST', {
+                                device_keys: { dev_eui: devEui, nwk_key: row[mapping.app_key] }
+                            });
+                            log(`  ↳ Cles ajoutees`, 'info');
+                        } catch (keyErr) {
+                            log(`  ⚠ Cles non ajoutees: ${keyErr.message}`, 'error');
+                        }
+                    }
+                    success++;
+                } catch (err) {
+                    const friendlyError = parseApiError(err.message);
+                    log(`✗ ${deviceName}: ${friendlyError}`, 'error');
+                    errors++;
+                    if (err.message.includes('invalid length') && err.message.includes('found 0')) {
+                        hasDeviceProfileError = true;
+                        failedRows.push(row);
+                    }
+                }
+
+                document.getElementById('statSuccess').textContent = success;
+                document.getElementById('statError').textContent = errors;
+            }
+
+            document.getElementById('importBtn').disabled = false;
+            const summary = skipped > 0 ? `${success} crees, ${skipped} ignores, ${errors} erreurs` : `${success}/${total} devices crees`;
+            log(`\n═══ Import termine: ${summary} ═══`, success + skipped === total ? 'success' : 'info');
+
+            if (hasDeviceProfileError && failedRows.length > 0) {
+                const fixSection = document.getElementById('fixDeviceProfileSection');
+                const fixSelect = document.getElementById('fixDeviceProfileSelect');
+                fixSelect.innerHTML = '<option value="">-- Selectionnez un Device Profile --</option>' +
+                    deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+                fixSection.classList.remove('hidden');
+            }
+        }
+
+        // ==================== EXPORT (Phase 4) ====================
+        let exportDevices = [];
+        let exportDeviceKeys = {};
+
+        document.getElementById('exportIncludeKeys').addEventListener('change', function() {
+            document.getElementById('exportKeysWarning').classList.toggle('hidden', !this.checked);
+        });
+
+        async function loadDevicesForExport() {
+            const progress = document.getElementById('exportProgress');
+            const progressBar = document.getElementById('exportProgressBar');
+            const progressText = document.getElementById('exportProgressText');
+
+            progress.classList.remove('hidden');
+            document.getElementById('btnLoadExport').disabled = true;
+            document.getElementById('exportAppName').textContent = selectedApplicationName;
+
+            try {
+                exportDevices = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = `Chargement: ${loaded}/${total} devices`;
+                });
+
+                // Fetch keys if checkbox is checked
+                const includeKeys = document.getElementById('exportIncludeKeys').checked;
+                exportDeviceKeys = {};
+                if (includeKeys && exportDevices.length > 0) {
+                    progressText.textContent = 'Recuperation des cles...';
+                    for (let i = 0; i < exportDevices.length; i++) {
+                        try {
+                            const keysData = await apiCall(`/api/devices/${exportDevices[i].devEui}/keys`);
+                            exportDeviceKeys[exportDevices[i].devEui] = keysData.deviceKeys || {};
+                        } catch (e) {
+                            // No keys for this device
+                        }
+                        const pct = Math.round(((i + 1) / exportDevices.length) * 100);
+                        progressBar.style.width = pct + '%';
+                        progressText.textContent = `Recuperation des cles: ${i + 1}/${exportDevices.length}`;
+                    }
+                }
+
+                renderExportPreview();
+                document.getElementById('exportPreviewCard').classList.remove('hidden');
+                progressText.textContent = `${exportDevices.length} devices charges`;
+            } catch (err) {
+                progressText.textContent = `Erreur: ${err.message}`;
+            }
+            document.getElementById('btnLoadExport').disabled = false;
+        }
+
+        function renderExportPreview() {
+            document.getElementById('exportDeviceCount').textContent = exportDevices.length;
+
+            // Discover all tag keys
+            const allTagKeys = new Set();
+            exportDevices.forEach(d => {
+                if (d.tags) Object.keys(d.tags).forEach(k => allTagKeys.add(k));
+            });
+
+            const includeKeys = document.getElementById('exportIncludeKeys').checked;
+            let headers = ['dev_eui', 'name', 'description', 'device_profile_id', 'device_profile_name', 'created_at', 'last_seen_at'];
+            const tagKeysArr = [...allTagKeys].sort();
+            headers = headers.concat(tagKeysArr);
+            if (includeKeys) headers.push('nwk_key', 'app_key');
+
+            const thead = document.querySelector('#exportPreviewTable thead');
+            const tbody = document.querySelector('#exportPreviewTable tbody');
+            thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+            const preview = exportDevices.slice(0, 5);
+            tbody.innerHTML = preview.map(d => {
+                const keys = exportDeviceKeys[d.devEui] || {};
+                const cells = [
+                    d.devEui, d.name || '', d.description || '',
+                    d.deviceProfileId || '', d.deviceProfileName || '',
+                    d.createdAt || '', d.lastSeenAt || ''
+                ];
+                tagKeysArr.forEach(k => cells.push((d.tags && d.tags[k]) || ''));
+                if (includeKeys) {
+                    cells.push(keys.nwkKey || '', keys.appKey || '');
+                }
+                return `<tr>${cells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
+            }).join('');
+        }
+
+        function downloadExport() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            const includeKeys = document.getElementById('exportIncludeKeys').checked;
+
+            const allTagKeys = new Set();
+            exportDevices.forEach(d => {
+                if (d.tags) Object.keys(d.tags).forEach(k => allTagKeys.add(k));
+            });
+            const tagKeysArr = [...allTagKeys].sort();
+
+            let headers = ['dev_eui', 'name', 'description', 'device_profile_id', 'device_profile_name', 'created_at', 'last_seen_at'];
+            headers = headers.concat(tagKeysArr);
+            if (includeKeys) headers.push('nwk_key', 'app_key');
+
+            const rows = exportDevices.map(d => {
+                const keys = exportDeviceKeys[d.devEui] || {};
+                const row = [
+                    d.devEui, d.name || '', d.description || '',
+                    d.deviceProfileId || '', d.deviceProfileName || '',
+                    d.createdAt || '', d.lastSeenAt || ''
+                ];
+                tagKeysArr.forEach(k => row.push((d.tags && d.tags[k]) || ''));
+                if (includeKeys) {
+                    row.push(keys.nwkKey || '', keys.appKey || '');
+                }
+                return row;
+            });
+
+            if (format === 'xlsx') {
+                const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Devices');
+                XLSX.writeFile(wb, `export_${selectedApplicationName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+            } else {
+                const csvContent = [headers.join(';')]
+                    .concat(rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')))
+                    .join('\n');
+                triggerDownload(csvContent, `export_${selectedApplicationName}_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+            }
+        }
+
+        // ==================== BULK DELETE (Phase 5) ====================
+        let deleteDevices = [];
+        let deleteSelection = new Set();
+        let deleteFilterQuery = '';
+
+        async function loadDevicesForDelete() {
+            const progress = document.getElementById('deleteProgress');
+            const progressBar = document.getElementById('deleteProgressBar');
+            const progressText = document.getElementById('deleteProgressText');
+
+            progress.classList.remove('hidden');
+            document.getElementById('btnLoadDelete').disabled = true;
+
+            try {
+                deleteDevices = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = `Chargement: ${loaded}/${total} devices`;
+                });
+
+                deleteSelection = new Set();
+                deleteFilterQuery = '';
+                renderDeleteList();
+                document.getElementById('deleteListCard').classList.remove('hidden');
+                progressText.textContent = `${deleteDevices.length} devices charges`;
+            } catch (err) {
+                progressText.textContent = `Erreur: ${err.message}`;
+            }
+            document.getElementById('btnLoadDelete').disabled = false;
+        }
+
+        function getFilteredDeleteDevices() {
+            if (!deleteFilterQuery) return deleteDevices;
+            const q = deleteFilterQuery.toLowerCase();
+            return deleteDevices.filter(d =>
+                (d.name && d.name.toLowerCase().includes(q)) ||
+                (d.devEui && d.devEui.toLowerCase().includes(q))
+            );
+        }
+
+        function renderDeleteList() {
+            const filtered = getFilteredDeleteDevices();
+            const tbody = document.querySelector('#deleteTable tbody');
+
+            tbody.innerHTML = filtered.map(d => {
+                const checked = deleteSelection.has(d.devEui) ? 'checked' : '';
+                const profileName = d.deviceProfileName || '-';
+                const lastSeen = d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString('fr-FR') : 'Jamais';
+                return `<tr>
+                    <td><input type="checkbox" class="device-checkbox" ${checked} onchange="toggleDeleteSelection('${d.devEui}')"></td>
+                    <td>${escapeHtml(d.name || '-')}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}</td>
+                    <td>${escapeHtml(profileName)}</td>
+                    <td>${lastSeen}</td>
+                </tr>`;
+            }).join('');
+
+            updateDeleteSelectionCount();
+        }
+
+        function toggleDeleteSelection(devEui) {
+            if (deleteSelection.has(devEui)) {
+                deleteSelection.delete(devEui);
+            } else {
+                deleteSelection.add(devEui);
+            }
+            updateDeleteSelectionCount();
+        }
+
+        function selectAllForDeletion() {
+            const filtered = getFilteredDeleteDevices();
+            filtered.forEach(d => deleteSelection.add(d.devEui));
+            renderDeleteList();
+        }
+
+        function deselectAll() {
+            deleteSelection.clear();
+            renderDeleteList();
+        }
+
+        function filterDeleteList(query) {
+            deleteFilterQuery = query;
+            renderDeleteList();
+        }
+
+        function updateDeleteSelectionCount() {
+            document.getElementById('deleteSelectionCount').textContent = deleteSelection.size;
+            document.getElementById('btnBulkDelete').disabled = deleteSelection.size === 0;
+        }
+
+        function confirmBulkDelete() {
+            if (deleteSelection.size === 0) return;
+            document.getElementById('deleteConfirmCount').textContent = deleteSelection.size;
+            document.getElementById('deleteConfirmNumber').textContent = deleteSelection.size;
+            document.getElementById('deleteConfirmInput').value = '';
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+        }
+
+        async function executeBulkDelete() {
+            const expectedCount = deleteSelection.size;
+            const inputValue = document.getElementById('deleteConfirmInput').value.trim();
+
+            if (inputValue !== String(expectedCount)) {
+                alert('Le nombre saisi ne correspond pas');
+                return;
+            }
+
+            closeDeleteConfirmModal();
+
+            const resultsCard = document.getElementById('deleteResultsCard');
+            const logContainer = document.getElementById('deleteLogContainer');
+            const progressDiv = document.getElementById('deleteResultProgress');
+            const progressBar = document.getElementById('deleteResultProgressBar');
+            const progressText = document.getElementById('deleteResultProgressText');
+
+            resultsCard.classList.remove('hidden');
+            progressDiv.classList.remove('hidden');
+            logContainer.innerHTML = '';
+
+            const devEuis = [...deleteSelection];
+            let success = 0;
+            let errors = 0;
+
+            for (let i = 0; i < devEuis.length; i++) {
+                const devEui = devEuis[i];
+                const device = deleteDevices.find(d => d.devEui === devEui);
+                const name = device ? device.name : devEui;
+
+                try {
+                    await apiCall(`/api/devices/${devEui}`, 'DELETE');
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-success';
+                    entry.textContent = `✓ ${name} (${devEui}) supprime`;
+                    logContainer.appendChild(entry);
+                    success++;
+                } catch (err) {
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-error';
+                    entry.textContent = `✗ ${name} (${devEui}): ${err.message}`;
+                    logContainer.appendChild(entry);
+                    errors++;
+                }
+
+                const pct = Math.round(((i + 1) / devEuis.length) * 100);
+                progressBar.style.width = pct + '%';
+                progressText.textContent = `Suppression: ${i + 1}/${devEuis.length}`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+
+                // Small delay to not overwhelm API
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            progressText.textContent = `Termine: ${success} supprime(s), ${errors} erreur(s)`;
+
+            // Remove deleted devices from list
+            deleteDevices = deleteDevices.filter(d => !deleteSelection.has(d.devEui) || errors > 0);
+            deleteSelection.clear();
+            renderDeleteList();
+        }
+
+        // ==================== TAG UPDATE (Phase 6) ====================
+        let tagUpdateData = [];
+        let tagUpdateHeaders = [];
+
+        // Setup drag and drop for tag update
+        (function initTagUpdateDropZone() {
+            const dz = document.getElementById('tagUpdateDropZone');
+            const fi = document.getElementById('tagUpdateFileInput');
+            if (!dz || !fi) return;
+
+            dz.addEventListener('click', () => fi.click());
+            dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.style.borderColor = 'var(--accent)'; });
+            dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+            dz.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dz.style.borderColor = '';
+                if (e.dataTransfer.files.length) handleTagUpdateFile(e.dataTransfer.files[0]);
+            });
+            fi.addEventListener('change', (e) => {
+                if (e.target.files.length) handleTagUpdateFile(e.target.files[0]);
+            });
+        })();
+
+        function handleTagUpdateFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['csv', 'xls', 'xlsx'].includes(ext)) {
+                alert('Format non supporte. Utilisez CSV, XLS ou XLSX.');
+                return;
+            }
+
+            document.getElementById('tagUpdateFileName').textContent = file.name;
+
+            if (ext === 'csv') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const sep = detectSeparator(e.target.result);
+                    const lines = e.target.result.split('\n').filter(l => l.trim());
+                    if (lines.length < 2) { alert('Fichier vide ou incomplet'); return; }
+                    tagUpdateHeaders = parseCSVLine(lines[0], sep);
+                    tagUpdateData = lines.slice(1).map(line => {
+                        const values = parseCSVLine(line, sep);
+                        const row = {};
+                        tagUpdateHeaders.forEach((h, i) => { row[h] = (values[i] || '').trim(); });
+                        return row;
+                    }).filter(r => Object.values(r).some(v => v));
+                    renderTagUpdatePreview();
+                };
+                reader.readAsText(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const wb = XLSX.read(e.target.result, { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                        if (json.length < 2) { alert('Fichier vide ou incomplet'); return; }
+                        tagUpdateHeaders = json[0].map(h => String(h).trim());
+                        tagUpdateData = json.slice(1).map(row => {
+                            const obj = {};
+                            tagUpdateHeaders.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]).trim() : ''; });
+                            return obj;
+                        }).filter(r => Object.values(r).some(v => v));
+                        renderTagUpdatePreview();
+                    } catch (err) {
+                        alert('Erreur de lecture: ' + err.message);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function renderTagUpdatePreview() {
+            // Find dev_eui column
+            const devEuiCol = tagUpdateHeaders.find(h => h.toLowerCase().replace(/[_\s-]/g, '') === 'deveui' || h.toLowerCase() === 'dev_eui');
+            if (!devEuiCol) {
+                alert('Colonne dev_eui introuvable dans le fichier');
+                return;
+            }
+
+            const tagCols = tagUpdateHeaders.filter(h => h !== devEuiCol);
+            document.getElementById('tagUpdateCount').textContent = tagUpdateData.length;
+            document.getElementById('tagUpdateCols').textContent = tagCols.join(', ') || 'aucune';
+
+            const thead = document.querySelector('#tagUpdatePreviewTable thead');
+            const tbody = document.querySelector('#tagUpdatePreviewTable tbody');
+            thead.innerHTML = `<tr>${[devEuiCol, ...tagCols].map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`;
+
+            const preview = tagUpdateData.slice(0, 5);
+            tbody.innerHTML = preview.map(row => {
+                return `<tr>${[devEuiCol, ...tagCols].map(h => `<td>${escapeHtml(row[h] || '-')}</td>`).join('')}</tr>`;
+            }).join('');
+
+            document.getElementById('tagUpdatePreviewCard').classList.remove('hidden');
+        }
+
+        async function startTagUpdate() {
+            const devEuiCol = tagUpdateHeaders.find(h => h.toLowerCase().replace(/[_\s-]/g, '') === 'deveui' || h.toLowerCase() === 'dev_eui');
+            if (!devEuiCol) { alert('Colonne dev_eui introuvable'); return; }
+
+            const tagCols = tagUpdateHeaders.filter(h => h !== devEuiCol);
+            const mode = document.querySelector('input[name="tagUpdateMode"]:checked').value;
+
+            const resultsCard = document.getElementById('tagUpdateResultsCard');
+            const logContainer = document.getElementById('tagUpdateLogContainer');
+            const progressDiv = document.getElementById('tagUpdateProgress');
+            const progressBar = document.getElementById('tagUpdateProgressBar');
+            const progressText = document.getElementById('tagUpdateProgressText');
+
+            resultsCard.classList.remove('hidden');
+            progressDiv.classList.remove('hidden');
+            logContainer.innerHTML = '';
+
+            let success = 0;
+            let errors = 0;
+
+            for (let i = 0; i < tagUpdateData.length; i++) {
+                const row = tagUpdateData[i];
+                const devEui = row[devEuiCol];
+                if (!devEui) { errors++; continue; }
+
+                try {
+                    // GET current device
+                    const deviceData = await apiCall(`/api/devices/${devEui}`);
+                    const device = deviceData.device;
+
+                    // Build new tags
+                    const csvTags = {};
+                    tagCols.forEach(col => {
+                        if (row[col] !== undefined && row[col] !== '') {
+                            csvTags[col] = row[col];
+                        }
+                    });
+
+                    if (mode === 'merge') {
+                        device.tags = { ...(device.tags || {}), ...csvTags };
+                    } else {
+                        device.tags = csvTags;
+                    }
+
+                    // PUT updated device
+                    await apiCall(`/api/devices/${devEui}`, 'PUT', { device: device });
+
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-success';
+                    entry.textContent = `✓ ${device.name || devEui}: tags mis a jour`;
+                    logContainer.appendChild(entry);
+                    success++;
+                } catch (err) {
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-error';
+                    entry.textContent = `✗ ${devEui}: ${err.message}`;
+                    logContainer.appendChild(entry);
+                    errors++;
+                }
+
+                const pct = Math.round(((i + 1) / tagUpdateData.length) * 100);
+                progressBar.style.width = pct + '%';
+                progressText.textContent = `Mise a jour: ${i + 1}/${tagUpdateData.length}`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            progressText.textContent = `Termine: ${success} mis a jour, ${errors} erreur(s)`;
+        }
 
         // Load profiles on page load
         loadProfiles();
