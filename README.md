@@ -1,21 +1,48 @@
-# ChirpStack CSV Importer
+# ChirpStack Device Manager
 
-Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier CSV ou Excel.
+Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, suppression en masse, mise à jour des tags.
 
 ## Fonctionnalités
 
+### Import
 - **Upload CSV/Excel** : Drag & drop ou sélection de fichier (formats CSV, XLS, XLSX)
 - **Import manuel** : Ajout de 1 à 5 devices sans fichier CSV
 - **Détection automatique** : Séparateur CSV (`;`, `,`, `tab`) modifiable à la volée
 - **Auto-mapping** : Détection intelligente des colonnes (dev_eui, app_key, name, etc.)
 - **Mapping manuel** : Association personnalisée des colonnes CSV aux champs ChirpStack
 - **Tags** : Support des tags depuis colonnes CSV ou valeurs fixes manuelles
+- **Profils d'import** : Gestion de profils avec tags obligatoires (stockage serveur)
+- **Validation des tags** : Vérification automatique des tags requis avant import
+- **Détection de doublons** : Avant chaque import, vérifie les DevEUI déjà présents et propose d'ignorer, écraser ou annuler
+
+### Export
+- **Export CSV/XLSX** : Exporte tous les devices d'une application avec pagination automatique
+- **Clés optionnelles** : Possibilité d'inclure les nwkKey/appKey (avec avertissement sécurité)
+- **Tags dynamiques** : Toutes les clés de tags découvertes automatiquement comme colonnes
+- **Aperçu** : Visualisation des données avant téléchargement
+
+### Suppression en masse
+- **Chargement paginé** : Charge tous les devices avec barre de progression
+- **Recherche en temps réel** : Filtrage par nom ou DevEUI
+- **Sélection multiple** : Checkboxes avec tout sélectionner / tout désélectionner
+- **Confirmation sécurisée** : Saisie du nombre exact de devices pour confirmer
+- **Log en temps réel** : Suivi de chaque suppression
+
+### Mise à jour des tags
+- **Import fichier** : Upload CSV/XLSX avec colonne `dev_eui` + colonnes de tags
+- **Mode fusion** : Ajoute/modifie les tags sans supprimer les existants
+- **Mode remplacement** : Remplace tous les tags par ceux du fichier
+- **Aperçu** : Visualisation avant exécution
+
+### Template CSV
+- **Génération de modèle** : CSV pré-configuré selon le Device Profile et le profil d'import sélectionnés
+- **Colonnes adaptées** : Inclut automatiquement les tags obligatoires du profil
+
+### Général
 - **Détection clé API** : Distingue automatiquement clé admin vs clé tenant
 - **Dashboard tenant** : Statistiques devices (actifs/inactifs/jamais vus) et gateways
 - **Serveurs sauvegardés** : Mémorisation des URLs de serveurs pour accès rapide
 - **Gestion erreurs** : Messages d'erreur clairs + correction sans revenir en arrière
-- **Profils d'import** : Gestion de profils avec tags obligatoires (stockage serveur)
-- **Validation des tags** : Vérification automatique des tags requis avant import
 - **100% client-side** : Tout tourne dans le navigateur (via proxy local)
 
 ---
@@ -37,9 +64,10 @@ Outil web pour importer des devices LoRaWAN dans ChirpStack v4 depuis un fichier
 
 ```
 Chirpstack_import_web/
-├── main.html      # Interface web
+├── main.html      # Interface web (SPA)
 ├── server.py      # Serveur proxy Python
 ├── profiles.json  # Stockage des profils (généré automatiquement)
+├── servers.json   # Stockage des serveurs sauvegardés (généré automatiquement)
 └── README.md      # Cette documentation
 ```
 
@@ -95,11 +123,15 @@ Puis ouvrir : **http://localhost:8000**
 
 Sélectionner l'application cible dans la liste déroulante.
 
-### Étape 3 : Import des devices
+### Étape 3 : Hub d'outils
+
+Après sélection de l'application, un hub affiche 5 outils sous forme de cartes cliquables :
+
+#### Import
 
 Deux modes d'import disponibles :
 
-#### Mode Fichier (CSV/Excel)
+**Mode Fichier (CSV/Excel) :**
 
 1. **Profil d'import** : Sélectionner un profil d'import (obligatoire) — définit les tags requis
 2. **Device Profile** : Sélectionner un Device Profile (optionnel si présent dans le fichier)
@@ -109,19 +141,46 @@ Deux modes d'import disponibles :
 6. **Tags obligatoires** : Remplir les tags requis par le profil sélectionné
 7. **Tags additionnels** : Ajouter des tags depuis colonnes ou manuellement
 8. **Import** : Cliquer sur "Lancer l'import"
+9. **Doublons** : Si des DevEUI existent déjà, choisir entre ignorer, écraser ou annuler
 
-#### Mode Manuel (1-5 devices)
+**Mode Manuel (1-5 devices) :**
 
-Pour importer quelques devices sans créer de fichier CSV :
-
-1. **Profil d'import** : Sélectionner un profil (obligatoire pour les tags requis)
-2. **Device Profile** : Sélectionner le Device Profile
-3. **Basculer en mode manuel** : Cliquer sur "Saisie manuelle"
-4. **Ajouter des devices** : Remplir DevEUI, AppKey (optionnel), Nom, Description
-5. **Tags obligatoires** : Remplir les valeurs des tags requis par le profil
-6. **Import** : Cliquer sur "Importer X device(s)"
+1. Basculer en mode "Ajout manuel"
+2. Remplir DevEUI, AppKey (optionnel), Nom
+3. Remplir les tags obligatoires du profil
+4. Cliquer sur "Importer les devices"
 
 > **Note** : Le mode manuel est limité à 5 devices. Pour plus, utiliser un fichier CSV/Excel.
+
+#### Export
+
+1. Cocher "Inclure les clés" si besoin (attention : données sensibles en clair)
+2. Choisir le format : CSV ou XLSX
+3. Cliquer sur "Charger les devices" — pagination automatique
+4. Vérifier l'aperçu puis cliquer sur "Télécharger"
+
+#### Suppression en masse
+
+1. Cliquer sur "Charger les devices"
+2. Utiliser la barre de recherche pour filtrer par nom ou DevEUI
+3. Cocher les devices à supprimer (ou "Tout sélectionner")
+4. Cliquer sur "Supprimer la sélection"
+5. Confirmer en tapant le nombre exact de devices
+
+> **Attention** : La suppression est irréversible. Tester sur une application de test.
+
+#### Mise à jour des tags
+
+1. Choisir le mode : **Fusionner** (ajouter/modifier sans supprimer) ou **Remplacer** (remplacer tous les tags)
+2. Glisser-déposer un fichier CSV/XLSX contenant `dev_eui` + colonnes de tags
+3. Vérifier l'aperçu
+4. Cliquer sur "Lancer la mise à jour"
+
+#### Template CSV
+
+1. Cliquer sur la carte "Template CSV"
+2. Sélectionner un Device Profile et/ou un profil d'import (optionnel)
+3. Télécharger le fichier modèle pré-configuré
 
 ---
 
@@ -381,8 +440,12 @@ docker compose down         # Arrêter
 | `/api/tenants` | GET | Liste des tenants (admin uniquement) |
 | `/api/applications` | GET | Liste des applications d'un tenant |
 | `/api/device-profiles` | GET | Liste des device profiles d'un tenant |
-| `/api/devices` | GET | Liste des devices d'une application (dashboard) |
+| `/api/devices` | GET | Liste des devices d'une application (pagination) |
 | `/api/devices` | POST | Création d'un device |
+| `/api/devices/{dev_eui}` | GET | Récupération d'un device (mise à jour tags) |
+| `/api/devices/{dev_eui}` | PUT | Mise à jour d'un device (tags) |
+| `/api/devices/{dev_eui}` | DELETE | Suppression d'un device |
+| `/api/devices/{dev_eui}/keys` | GET | Récupération des clés (export) |
 | `/api/devices/{dev_eui}/keys` | POST | Ajout des clés (app_key) |
 | `/api/gateways` | GET | Liste des gateways d'un tenant (dashboard) |
 
