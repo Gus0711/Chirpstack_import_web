@@ -1,6 +1,6 @@
 # ChirpStack Device Manager
 
-Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, suppression en masse, mise à jour des tags.
+Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, suppression en masse, migration, changement de profil, recherche cross-app, mise à jour des tags.
 
 ## Fonctionnalités
 
@@ -14,12 +14,15 @@ Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, s
 - **Profils d'import** : Gestion de profils avec tags obligatoires (stockage serveur)
 - **Validation des tags** : Vérification automatique des tags requis avant import
 - **Détection de doublons** : Avant chaque import, vérifie les DevEUI déjà présents et propose d'ignorer, écraser ou annuler
+- **Validation pré-import** : Vérification des formats (DevEUI 16 hex, AppKey 32 hex, doublons internes) avec cellules en rouge dans l'aperçu
+- **Annulation d'import** : Bouton pour supprimer tous les devices créés lors du dernier import (fichier ou manuel)
 
 ### Export
 - **Export CSV/XLSX** : Exporte tous les devices d'une application avec pagination automatique
 - **Clés optionnelles** : Possibilité d'inclure les nwkKey/appKey (avec avertissement sécurité)
 - **Tags dynamiques** : Toutes les clés de tags découvertes automatiquement comme colonnes
 - **Aperçu** : Visualisation des données avant téléchargement
+- **Filtres** : Filtrage par Device Profile, activité (actif/inactif/jamais vu) ou tag avant export
 
 ### Suppression en masse
 - **Chargement paginé** : Charge tous les devices avec barre de progression
@@ -27,6 +30,22 @@ Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, s
 - **Sélection multiple** : Checkboxes avec tout sélectionner / tout désélectionner
 - **Confirmation sécurisée** : Saisie du nombre exact de devices pour confirmer
 - **Log en temps réel** : Suivi de chaque suppression
+
+### Migration entre applications
+- **Déplacement de devices** : Migrer des devices d'une application vers une autre
+- **Conservation complète** : Clés (nwkKey/appKey) et tags conservés lors de la migration
+- **Sélection multiple** : Même pattern checkboxes avec recherche et filtrage
+- **Avertissement sécurité** : Warning explicite car la migration supprime puis recrée le device
+
+### Changement de Device Profile en masse
+- **Modification groupée** : Changer le Device Profile de plusieurs devices en une opération
+- **Affichage du profil actuel** : Chaque device affiche son profil actuel pour comparaison
+- **Sélection multiple** : Checkboxes avec recherche et filtrage
+
+### Recherche cross-app
+- **Recherche directe** : DevEUI exact (16 hex) → requête directe instantanée
+- **Recherche partielle** : Texte partiel → scan de toutes les applications du tenant
+- **Résultats complets** : DevEUI, nom, application, profil, dernier vu
 
 ### Mise à jour des tags
 - **Import fichier** : Upload CSV/XLSX avec colonne `dev_eui` + colonnes de tags
@@ -39,6 +58,8 @@ Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, s
 - **Colonnes adaptées** : Inclut automatiquement les tags obligatoires du profil
 
 ### Général
+- **Compteur de devices** : Nombre de devices de l'application affiché dans le hub (rafraîchi automatiquement)
+- **Copier-coller rapide** : Boutons "copier" à côté de chaque DevEUI dans tous les tableaux
 - **Détection clé API** : Distingue automatiquement clé admin vs clé tenant
 - **Dashboard tenant** : Statistiques devices (actifs/inactifs/jamais vus) et gateways
 - **Serveurs sauvegardés** : Mémorisation des URLs de serveurs pour accès rapide
@@ -125,7 +146,7 @@ Sélectionner l'application cible dans la liste déroulante.
 
 ### Étape 3 : Hub d'outils
 
-Après sélection de l'application, un hub affiche 5 outils sous forme de cartes cliquables :
+Après sélection de l'application, un hub affiche 8 outils sous forme de cartes cliquables (avec le compteur de devices de l'application) :
 
 #### Import
 
@@ -140,8 +161,10 @@ Deux modes d'import disponibles :
 5. **Mapping** : Vérifier/ajuster l'association des colonnes
 6. **Tags obligatoires** : Remplir les tags requis par le profil sélectionné
 7. **Tags additionnels** : Ajouter des tags depuis colonnes ou manuellement
-8. **Import** : Cliquer sur "Lancer l'import"
-9. **Doublons** : Si des DevEUI existent déjà, choisir entre ignorer, écraser ou annuler
+8. **Validation** : Les erreurs de format (DevEUI, AppKey) sont surlignées en rouge dans l'aperçu
+9. **Import** : Cliquer sur "Lancer l'import"
+10. **Doublons** : Si des DevEUI existent déjà, choisir entre ignorer, écraser ou annuler
+11. **Annulation** : Après l'import, un bouton permet de supprimer tous les devices créés en cas d'erreur
 
 **Mode Manuel (1-5 devices) :**
 
@@ -157,7 +180,8 @@ Deux modes d'import disponibles :
 1. Cocher "Inclure les clés" si besoin (attention : données sensibles en clair)
 2. Choisir le format : CSV ou XLSX
 3. Cliquer sur "Charger les devices" — pagination automatique
-4. Vérifier l'aperçu puis cliquer sur "Télécharger"
+4. **Filtrer** (optionnel) : par Device Profile, activité ou tag (cle=valeur)
+5. Vérifier l'aperçu puis cliquer sur "Télécharger" (seuls les devices filtrés sont exportés)
 
 #### Suppression en masse
 
@@ -168,6 +192,30 @@ Deux modes d'import disponibles :
 5. Confirmer en tapant le nombre exact de devices
 
 > **Attention** : La suppression est irréversible. Tester sur une application de test.
+
+#### Migration
+
+1. Sélectionner l'**application de destination** dans la liste déroulante
+2. Cliquer sur "Charger les devices" pour lister les devices de l'application source
+3. Cocher les devices à migrer (recherche et sélection groupée disponibles)
+4. Cliquer sur "Migrer la sélection" et confirmer
+
+> **Attention** : La migration supprime le device de l'app source puis le recrée dans l'app destination. Si la recréation échoue, le device pourrait être perdu. Tester d'abord sur une application de test.
+
+#### Changement de Device Profile
+
+1. Sélectionner le **nouveau Device Profile** dans la liste déroulante
+2. Cliquer sur "Charger les devices"
+3. Cocher les devices à modifier (le profil actuel est affiché pour chaque device)
+4. Cliquer sur "Appliquer le changement" et confirmer
+
+#### Recherche
+
+1. Saisir un **DevEUI** (complet ou partiel, minimum 4 caractères)
+2. Cliquer sur "Rechercher"
+   - DevEUI exact (16 hex) : recherche directe via API (instantané)
+   - Partiel : scan de toutes les applications (plus lent)
+3. Les résultats affichent le device, son application et son profil
 
 #### Mise à jour des tags
 
