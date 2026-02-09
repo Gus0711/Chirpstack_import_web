@@ -78,6 +78,8 @@ Outil web pour gérer les devices LoRaWAN dans ChirpStack v4 : import, export, s
 
 <img width="972" height="946" alt="image" src="https://github.com/user-attachments/assets/f0c7b378-5b1c-4722-9fad-ce2912f7cddb" />
 
+<img width="1008" height="980" alt="image" src="https://github.com/user-attachments/assets/74b7081e-cac9-426c-b084-61d8b8dbcf8e" />
+
 
 ## Installation
 
