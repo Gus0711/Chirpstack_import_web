@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChirpStack Device Manager</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0f'/%3E%3Ccircle cx='32' cy='44' r='4' fill='%2300d4aa'/%3E%3Cpath d='M22 38a14 14 0 0 1 20 0' stroke='%2300d4aa' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M16 31a23 23 0 0 1 32 0' stroke='%2300d4aa' stroke-width='3' fill='none' stroke-linecap='round' opacity='.7'/%3E%3Cpath d='M10 24a32 32 0 0 1 44 0' stroke='%2300d4aa' stroke-width='3' fill='none' stroke-linecap='round' opacity='.4'/%3E%3C/svg%3E">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
@@ -873,6 +874,7 @@
 
         .log-success { color: var(--success); text-shadow: 0 0 10px rgba(0, 212, 170, 0.3); }
         .log-error { color: var(--error); text-shadow: 0 0 10px rgba(255, 92, 92, 0.3); }
+        .log-warning { color: var(--warning); text-shadow: 0 0 10px rgba(255, 184, 77, 0.3); }
         .log-info { color: var(--text-dim); }
 
         .stats {
@@ -2391,6 +2393,32 @@
         .mode-selector input[type="radio"]:checked + span {
             color: var(--accent);
         }
+
+        /* Copy button */
+        .btn-copy {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s;
+            margin-left: 0.3rem;
+        }
+
+        .btn-copy:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Validation error cell */
+        td.cell-error {
+            color: var(--error) !important;
+            border: 1px solid var(--error) !important;
+            background: rgba(255, 92, 92, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -2565,6 +2593,7 @@
                 <div style="text-align: center; margin-bottom: 1.5rem;">
                     <p style="color: var(--text-dim); font-size: 0.9rem;">
                         Application : <span id="hubAppName" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                        — <span id="hubDeviceCount" style="color: var(--accent);"></span>
                         &nbsp;|&nbsp;
                         <button class="btn-secondary btn-small" onclick="goToStep(2)" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Changer</button>
                     </p>
@@ -2591,12 +2620,33 @@
                         <h3>Supprimer en masse</h3>
                         <p>Selectionner et supprimer plusieurs devices</p>
                     </div>
+                    <div class="tool-card" onclick="showTool('migrate')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <h3>Migration</h3>
+                        <p>Deplacer des devices vers une autre application</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('dpChange')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <h3>Changer le profil</h3>
+                        <p>Modifier le Device Profile de plusieurs devices</p>
+                    </div>
                     <div class="tool-card" onclick="showTool('tagUpdate')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                         <h3>Mise a jour des tags</h3>
                         <p>Modifier les tags de vos devices en masse via CSV/XLSX</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('search')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <h3>Rechercher</h3>
+                        <p>Trouver un device par DevEUI dans toutes les applications</p>
                     </div>
                     <div class="tool-card" onclick="openTemplateModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2825,6 +2875,9 @@
             </div>
         </div>
 
+        <!-- Validation summary -->
+        <p id="validationSummary" class="hidden" style="color: var(--error); font-size: 0.9rem; margin: 0.75rem auto 0 auto; max-width: 900px; font-weight: 500; text-align: center;"></p>
+
         <!-- Actions -->
         <div class="actions hidden" id="actionsSection" style="max-width: 900px; margin: 0 auto;">
             <button class="btn-secondary" onclick="resetAll()">Réinitialiser</button>
@@ -2849,6 +2902,13 @@
                     <div class="stat-value" id="statError">0</div>
                     <div class="stat-label">Erreurs</div>
                 </div>
+            </div>
+
+            <!-- Undo last import button -->
+            <div style="text-align: center; margin: 1rem 0;">
+                <button class="btn-danger btn-small hidden" id="btnUndoImport" onclick="undoLastImport()">
+                    Annuler l'import (supprimer les devices crees)
+                </button>
             </div>
 
             <!-- Fix Device Profile section - shown when DP is missing -->
@@ -2903,6 +2963,30 @@
                     <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
                         <span id="exportDeviceCount">0</span> devices charges
                     </p>
+                    <!-- Export filters -->
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+                            <div>
+                                <label style="font-size: 0.8rem;">Device Profile</label>
+                                <select id="exportFilterDp" onchange="applyExportFilters()" style="font-size: 0.8rem;">
+                                    <option value="">-- Tous --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem;">Activite</label>
+                                <select id="exportFilterActivity" onchange="applyExportFilters()" style="font-size: 0.8rem;">
+                                    <option value="">-- Tous --</option>
+                                    <option value="active">Actifs (&lt; 24h)</option>
+                                    <option value="inactive">Inactifs (&gt; 24h)</option>
+                                    <option value="never">Jamais vus</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem;">Tag (cle=valeur)</label>
+                                <input type="text" id="exportFilterTag" placeholder="Ex: site=Paris" oninput="applyExportFilters()" style="font-size: 0.8rem;">
+                            </div>
+                        </div>
+                    </div>
                     <div class="preview-table" style="max-height: 300px; overflow-y: auto;">
                         <table id="exportPreviewTable"><thead></thead><tbody></tbody></table>
                     </div>
@@ -2999,6 +3083,123 @@
                         <div class="progress-bar"><div class="progress-bar-fill" id="tagUpdateProgressBar"></div></div>
                     </div>
                     <div class="log-container" id="tagUpdateLogContainer"></div>
+                </div>
+            </div>
+
+            <!-- ====== MIGRATE SUB-VIEW ====== -->
+            <div id="migrateSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Migration de devices</h2>
+                </div>
+                <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Application source : <span id="migrateSourceApp" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">-</span>
+                    </p>
+                    <label>Application de destination</label>
+                    <div class="select-wrapper">
+                        <select id="migrateDestApp">
+                            <option value="">-- Choisir --</option>
+                        </select>
+                    </div>
+                    <div class="warning-box" style="margin-bottom: 1rem;">
+                        La migration supprime le device de l'app source puis le recree dans l'app destination avec ses cles et tags. Si la recreation echoue, le device pourrait etre perdu.
+                    </div>
+                    <button class="btn-primary" id="btnLoadMigrate" onclick="loadDevicesForMigration()">Charger les devices</button>
+                    <div id="migrateProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="migrateLoadProgressText">Chargement...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="migrateLoadProgressBar"></div></div>
+                    </div>
+                </div>
+                <div class="card hidden" id="migrateListCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <input type="text" class="delete-search" placeholder="Rechercher par nom ou DevEUI..." oninput="filterMigrateList(this.value)">
+                    <div class="delete-actions-bar">
+                        <button class="btn-secondary btn-small" onclick="selectAllForMigration()">Tout selectionner</button>
+                        <button class="btn-secondary btn-small" onclick="deselectAllMigration()">Tout deselectionner</button>
+                        <span class="selection-count"><span id="migrateSelectionCount">0</span> device(s) selectionne(s)</span>
+                    </div>
+                    <div class="preview-table" style="max-height: 400px; overflow-y: auto;">
+                        <table id="migrateTable">
+                            <thead><tr><th></th><th>Nom</th><th>DevEUI</th><th>Profil</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn-primary" id="btnMigrate" onclick="executeMigration()" disabled>Migrer la selection</button>
+                    </div>
+                </div>
+                <div class="card hidden" id="migrateResultsCard" style="max-width: 900px; margin: 0 auto;">
+                    <h2>Resultats</h2>
+                    <div class="progress-bar"><div class="progress-bar-fill" id="migrateProgressBar"></div></div>
+                    <p class="progress-text" id="migrateProgressText"></p>
+                    <div class="log-container" id="migrateLogContainer"></div>
+                </div>
+            </div>
+
+            <!-- ====== DP CHANGE SUB-VIEW ====== -->
+            <div id="dpChangeSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Changer le Device Profile</h2>
+                </div>
+                <div class="card" style="max-width: 700px; margin: 0 auto 1.5rem auto;">
+                    <label>Nouveau Device Profile</label>
+                    <div class="select-wrapper">
+                        <select id="dpChangeSelect">
+                            <option value="">-- Choisir --</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="btnLoadDpChange" onclick="loadDevicesForDpChange()">Charger les devices</button>
+                    <div id="dpChangeProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="dpChangeLoadProgressText">Chargement...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="dpChangeLoadProgressBar"></div></div>
+                    </div>
+                </div>
+                <div class="card hidden" id="dpChangeListCard" style="max-width: 900px; margin: 0 auto 1.5rem auto;">
+                    <input type="text" class="delete-search" placeholder="Rechercher par nom ou DevEUI..." oninput="filterDpChangeList(this.value)">
+                    <div class="delete-actions-bar">
+                        <button class="btn-secondary btn-small" onclick="selectAllForDpChange()">Tout selectionner</button>
+                        <button class="btn-secondary btn-small" onclick="deselectAllDpChange()">Tout deselectionner</button>
+                        <span class="selection-count"><span id="dpChangeSelectionCount">0</span> device(s) selectionne(s)</span>
+                    </div>
+                    <div class="preview-table" style="max-height: 400px; overflow-y: auto;">
+                        <table id="dpChangeTable">
+                            <thead><tr><th></th><th>Nom</th><th>DevEUI</th><th>Profil actuel</th><th>Dernier vu</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn-primary" id="btnDpChange" onclick="executeDpChange()" disabled>Appliquer le changement</button>
+                    </div>
+                </div>
+                <div class="card hidden" id="dpChangeResultsCard" style="max-width: 900px; margin: 0 auto;">
+                    <h2>Resultats</h2>
+                    <div class="progress-bar"><div class="progress-bar-fill" id="dpChangeProgressBar"></div></div>
+                    <p class="progress-text" id="dpChangeProgressText"></p>
+                    <div class="log-container" id="dpChangeLogContainer"></div>
+                </div>
+            </div>
+
+            <!-- ====== SEARCH SUB-VIEW ====== -->
+            <div id="searchSubView" class="tool-subview hidden">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Recherche de device</h2>
+                </div>
+                <div class="card" style="max-width: 700px; margin: 0 auto;">
+                    <label>DevEUI a rechercher</label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input type="text" id="searchDevEui" placeholder="70B3D52DD3000001" maxlength="16" style="flex: 1; text-transform: uppercase;">
+                        <button class="btn-primary" onclick="searchDevice()">Rechercher</button>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 0.5rem;">
+                        DevEUI exact (16 hex) : recherche directe. Partiel : recherche dans toutes les applications.
+                    </p>
+                    <div id="searchProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="searchProgressText">Recherche...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="searchProgressBar"></div></div>
+                    </div>
+                    <div id="searchResults" class="hidden" style="margin-top: 1.5rem;"></div>
                 </div>
             </div>
 
@@ -3360,6 +3561,7 @@
             // Show hub (not a specific tool)
             backToToolsHub();
             goToStep(3);
+            loadHubDeviceCount();
         }
 
         function getSelectedDeviceProfile() {
@@ -3714,6 +3916,36 @@
             }).join('');
 
             document.getElementById('rowCount').textContent = csvData.length;
+
+            // Phase 4: Validation
+            const validation = validateImportData();
+            const summaryEl = document.getElementById('validationSummary');
+            if (!validation.valid) {
+                summaryEl.textContent = `\u26A0 ${validation.errors.length} erreur(s) de format detectee(s) - verifiez votre fichier`;
+                summaryEl.classList.remove('hidden');
+
+                // Color error cells in preview
+                const rows = tbody.querySelectorAll('tr');
+                const mapping = getMapping();
+                const devEuiColIdx = displayFields.filter(f => mapping[f]).indexOf('dev_eui');
+                const appKeyColIdx = displayFields.filter(f => mapping[f]).indexOf('app_key');
+
+                validation.errors.forEach(err => {
+                    if (err.row >= 0 && err.row < rows.length) {
+                        const row = rows[err.row];
+                        if (err.field === 'dev_eui' && devEuiColIdx >= 0 && row.cells[devEuiColIdx]) {
+                            row.cells[devEuiColIdx].classList.add('cell-error');
+                            row.cells[devEuiColIdx].title = err.message;
+                        }
+                        if (err.field === 'app_key' && appKeyColIdx >= 0 && row.cells[appKeyColIdx]) {
+                            row.cells[appKeyColIdx].classList.add('cell-error');
+                            row.cells[appKeyColIdx].title = err.message;
+                        }
+                    }
+                });
+            } else {
+                summaryEl.classList.add('hidden');
+            }
         }
 
         let hasDeviceProfileError = false;
@@ -3726,10 +3958,23 @@
                 return;
             }
 
+            // Phase 4: Validate format before import
+            if (!retryMode) {
+                const validation = validateImportData();
+                if (!validation.valid) {
+                    alert(`${validation.errors.length} erreur(s) de format detectee(s). Corrigez votre fichier.`);
+                    return;
+                }
+            }
+
             // Validate required tags from selected profile
             if (!validateRequiredTags()) {
                 return;
             }
+
+            // Phase 1: Reset undo tracking
+            if (!retryMode) lastImportedDevEuis = [];
+            document.getElementById('btnUndoImport').classList.add('hidden');
 
             // Check for duplicates before import (only on first run, not retry)
             if (!retryMode) {
@@ -3812,6 +4057,7 @@
                     // Create device
                     await apiCall('/api/devices', 'POST', devicePayload);
                     log(`✓ Device ${deviceName} créé`, 'success');
+                    lastImportedDevEuis.push(devEui);
 
                     // Add keys if app_key is mapped
                     if (mapping.app_key && row[mapping.app_key]) {
@@ -3849,6 +4095,11 @@
 
             document.getElementById('importBtn').disabled = false;
             log(`\n═══ Import terminé: ${success}/${total} devices créés ═══`, success === total ? 'success' : 'info');
+
+            // Phase 1: Show undo button if devices were created
+            if (lastImportedDevEuis.length > 0) {
+                document.getElementById('btnUndoImport').classList.remove('hidden');
+            }
 
             // Show fix section if Device Profile errors occurred
             if (hasDeviceProfileError && failedRows.length > 0) {
@@ -4785,6 +5036,10 @@
                 return;
             }
 
+            // Phase 1: Reset undo tracking
+            lastImportedDevEuis = [];
+            document.getElementById('btnUndoImport').classList.add('hidden');
+
             // Show results section
             document.getElementById('mappingSection').classList.add('hidden');
             const resultsSection = document.getElementById('resultsSection');
@@ -4831,6 +5086,7 @@
                     }
 
                     log(`✓ ${device.name} (${device.deveui})`, 'success');
+                    lastImportedDevEuis.push(device.deveui);
                     successCount++;
 
                 } catch (error) {
@@ -4847,6 +5103,11 @@
             document.getElementById('statSuccess').textContent = successCount;
             document.getElementById('statError').textContent = errorCount;
             document.getElementById('statTotal').textContent = devices.length;
+
+            // Phase 1: Show undo button
+            if (lastImportedDevEuis.length > 0) {
+                document.getElementById('btnUndoImport').classList.remove('hidden');
+            }
 
             // Clear manual devices on full success
             if (errorCount === 0 && successCount > 0) {
@@ -4878,6 +5139,15 @@
             }
         };
 
+        // ==================== NEW PHASE GLOBALS ====================
+        let lastImportedDevEuis = [];
+        let migrateDevices = [];
+        let migrateSelection = new Set();
+        let migrateFilterQuery = '';
+        let dpChangeDevices = [];
+        let dpChangeSelection = new Set();
+        let dpChangeFilterQuery = '';
+
         // ==================== TOOLS HUB NAVIGATION ====================
         function showTool(toolName) {
             document.getElementById('toolsHub').classList.add('hidden');
@@ -4887,11 +5157,17 @@
             const viewId = toolName + 'SubView';
             const view = document.getElementById(viewId);
             if (view) view.classList.remove('hidden');
+            // Init specific tools
+            if (toolName === 'migrate') showMigrateTool();
+            if (toolName === 'export') {
+                document.getElementById('exportAppName').textContent = selectedApplicationName;
+            }
         }
 
         function backToToolsHub() {
             document.querySelectorAll('#step3 > .tool-subview').forEach(el => el.classList.add('hidden'));
             document.getElementById('toolsHub').classList.remove('hidden');
+            loadHubDeviceCount();
         }
 
         // ==================== SHARED UTILITIES ====================
@@ -5062,6 +5338,9 @@
             const mapping = getMapping();
             const duplicateEuis = new Set(duplicatesFound.map(d => d.devEui));
 
+            lastImportedDevEuis = [];
+            document.getElementById('btnUndoImport').classList.add('hidden');
+
             resultsSection.classList.remove('hidden');
             document.getElementById('fixDeviceProfileSection').classList.add('hidden');
             const logContainer = document.getElementById('logContainer');
@@ -5130,6 +5409,7 @@
                 try {
                     await apiCall('/api/devices', 'POST', devicePayload);
                     log(`✓ Device ${deviceName} cree`, 'success');
+                    lastImportedDevEuis.push(devEui);
 
                     if (mapping.app_key && row[mapping.app_key]) {
                         try {
@@ -5160,6 +5440,11 @@
             const summary = skipped > 0 ? `${success} crees, ${skipped} ignores, ${errors} erreurs` : `${success}/${total} devices crees`;
             log(`\n═══ Import termine: ${summary} ═══`, success + skipped === total ? 'success' : 'info');
 
+            // Phase 1: Show undo button
+            if (lastImportedDevEuis.length > 0) {
+                document.getElementById('btnUndoImport').classList.remove('hidden');
+            }
+
             if (hasDeviceProfileError && failedRows.length > 0) {
                 const fixSection = document.getElementById('fixDeviceProfileSection');
                 const fixSelect = document.getElementById('fixDeviceProfileSelect');
@@ -5172,6 +5457,7 @@
         // ==================== EXPORT (Phase 4) ====================
         let exportDevices = [];
         let exportDeviceKeys = {};
+        let exportFilteredDevices = [];
 
         document.getElementById('exportIncludeKeys').addEventListener('change', function() {
             document.getElementById('exportKeysWarning').classList.toggle('hidden', !this.checked);
@@ -5211,6 +5497,19 @@
                     }
                 }
 
+                // Initialize filters
+                exportFilteredDevices = [...exportDevices];
+                // Populate DP filter select
+                const dpSet = new Map();
+                exportDevices.forEach(d => {
+                    if (d.deviceProfileId && d.deviceProfileName) dpSet.set(d.deviceProfileId, d.deviceProfileName);
+                });
+                const filterDpSelect = document.getElementById('exportFilterDp');
+                filterDpSelect.innerHTML = '<option value="">-- Tous --</option>' +
+                    [...dpSet.entries()].map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`).join('');
+                document.getElementById('exportFilterActivity').value = '';
+                document.getElementById('exportFilterTag').value = '';
+
                 renderExportPreview();
                 document.getElementById('exportPreviewCard').classList.remove('hidden');
                 progressText.textContent = `${exportDevices.length} devices charges`;
@@ -5221,7 +5520,9 @@
         }
 
         function renderExportPreview() {
-            document.getElementById('exportDeviceCount').textContent = exportDevices.length;
+            const devices = exportFilteredDevices.length > 0 || document.getElementById('exportFilterDp').value || document.getElementById('exportFilterActivity').value || document.getElementById('exportFilterTag').value.trim()
+                ? exportFilteredDevices : exportDevices;
+            document.getElementById('exportDeviceCount').textContent = `${devices.length} / ${exportDevices.length}`;
 
             // Discover all tag keys
             const allTagKeys = new Set();
@@ -5239,25 +5540,30 @@
             const tbody = document.querySelector('#exportPreviewTable tbody');
             thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-            const preview = exportDevices.slice(0, 5);
+            const preview = devices.slice(0, 5);
             tbody.innerHTML = preview.map(d => {
                 const keys = exportDeviceKeys[d.devEui] || {};
-                const cells = [
-                    d.devEui, d.name || '', d.description || '',
+                const firstCell = `<td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>`;
+                const otherCells = [
+                    d.name || '', d.description || '',
                     d.deviceProfileId || '', d.deviceProfileName || '',
                     d.createdAt || '', d.lastSeenAt || ''
                 ];
-                tagKeysArr.forEach(k => cells.push((d.tags && d.tags[k]) || ''));
+                tagKeysArr.forEach(k => otherCells.push((d.tags && d.tags[k]) || ''));
                 if (includeKeys) {
-                    cells.push(keys.nwkKey || '', keys.appKey || '');
+                    otherCells.push(keys.nwkKey || '', keys.appKey || '');
                 }
-                return `<tr>${cells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
+                return `<tr>${firstCell}${otherCells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
             }).join('');
         }
 
         function downloadExport() {
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const includeKeys = document.getElementById('exportIncludeKeys').checked;
+
+            // Use filtered devices if filters are active
+            const hasFilters = document.getElementById('exportFilterDp').value || document.getElementById('exportFilterActivity').value || document.getElementById('exportFilterTag').value.trim();
+            const devices = hasFilters ? exportFilteredDevices : exportDevices;
 
             const allTagKeys = new Set();
             exportDevices.forEach(d => {
@@ -5269,7 +5575,7 @@
             headers = headers.concat(tagKeysArr);
             if (includeKeys) headers.push('nwk_key', 'app_key');
 
-            const rows = exportDevices.map(d => {
+            const rows = devices.map(d => {
                 const keys = exportDeviceKeys[d.devEui] || {};
                 const row = [
                     d.devEui, d.name || '', d.description || '',
@@ -5347,7 +5653,7 @@
                 return `<tr>
                     <td><input type="checkbox" class="device-checkbox" ${checked} onchange="toggleDeleteSelection('${d.devEui}')"></td>
                     <td>${escapeHtml(d.name || '-')}</td>
-                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>
                     <td>${escapeHtml(profileName)}</td>
                     <td>${lastSeen}</td>
                 </tr>`;
@@ -5624,6 +5930,506 @@
             }
 
             progressText.textContent = `Termine: ${success} mis a jour, ${errors} erreur(s)`;
+        }
+
+        // ==================== PHASE 8: COPY TO CLIPBOARD ====================
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.textContent;
+                btn.textContent = '\u2713';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.color = '';
+                }, 1500);
+            });
+        }
+
+        // ==================== PHASE 6: HUB DEVICE COUNTER ====================
+        async function loadHubDeviceCount() {
+            try {
+                const data = await apiCall(`/api/devices?applicationId=${selectedApplicationId}&limit=1`);
+                const count = parseInt(data.totalCount) || 0;
+                document.getElementById('hubDeviceCount').textContent = `${count} device(s)`;
+            } catch (e) {
+                document.getElementById('hubDeviceCount').textContent = '';
+            }
+        }
+
+        // ==================== PHASE 4: PRE-IMPORT VALIDATION ====================
+        function validateImportData() {
+            const mapping = getMapping();
+            if (!mapping.dev_eui) return { valid: false, errors: [{ row: -1, field: 'dev_eui', message: 'Mapping dev_eui obligatoire' }] };
+
+            const errors = [];
+            const seenDevEuis = new Set();
+
+            csvData.forEach((row, i) => {
+                const devEui = (row[mapping.dev_eui] || '').trim();
+
+                // DevEUI: 16 hex
+                if (!devEui || !/^[0-9a-fA-F]{16}$/.test(devEui)) {
+                    errors.push({ row: i, field: 'dev_eui', message: 'DevEUI invalide (16 hex attendus)' });
+                }
+
+                // Internal duplicate
+                if (devEui && seenDevEuis.has(devEui.toLowerCase())) {
+                    errors.push({ row: i, field: 'dev_eui', message: 'DevEUI en doublon dans le fichier' });
+                }
+                if (devEui) seenDevEuis.add(devEui.toLowerCase());
+
+                // AppKey: 32 hex if provided
+                if (mapping.app_key) {
+                    const appKey = (row[mapping.app_key] || '').trim();
+                    if (appKey && !/^[0-9a-fA-F]{32}$/.test(appKey)) {
+                        errors.push({ row: i, field: 'app_key', message: 'AppKey invalide (32 hex attendus)' });
+                    }
+                }
+            });
+
+            return { valid: errors.length === 0, errors };
+        }
+
+        // ==================== PHASE 1: UNDO LAST IMPORT ====================
+        async function undoLastImport() {
+            if (lastImportedDevEuis.length === 0) return;
+            if (!confirm(`Supprimer les ${lastImportedDevEuis.length} devices qui viennent d'etre importes ?`)) return;
+
+            log('\n\u2500\u2500 Annulation du dernier import \u2500\u2500', 'info');
+            let deleted = 0;
+            let errors = 0;
+
+            for (const devEui of lastImportedDevEuis) {
+                try {
+                    await apiCall(`/api/devices/${devEui}`, 'DELETE');
+                    log(`\u2713 ${devEui} supprime`, 'success');
+                    deleted++;
+                } catch (err) {
+                    log(`\u2717 ${devEui}: ${err.message}`, 'error');
+                    errors++;
+                }
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            log(`\u2500\u2500 Annulation terminee: ${deleted} supprime(s), ${errors} erreur(s) \u2500\u2500`, deleted > 0 ? 'success' : 'error');
+            lastImportedDevEuis = [];
+            document.getElementById('btnUndoImport').classList.add('hidden');
+        }
+
+        // ==================== PHASE 7: FILTERED EXPORT ====================
+        function applyExportFilters() {
+            const dpFilter = document.getElementById('exportFilterDp').value;
+            const activityFilter = document.getElementById('exportFilterActivity').value;
+            const tagFilter = document.getElementById('exportFilterTag').value.trim();
+
+            exportFilteredDevices = exportDevices.filter(d => {
+                if (dpFilter && d.deviceProfileId !== dpFilter) return false;
+
+                if (activityFilter) {
+                    const now = new Date();
+                    if (activityFilter === 'active' && (!d.lastSeenAt || (now - new Date(d.lastSeenAt)) > 24*60*60*1000)) return false;
+                    if (activityFilter === 'inactive' && (!d.lastSeenAt || (now - new Date(d.lastSeenAt)) <= 24*60*60*1000)) return false;
+                    if (activityFilter === 'never' && d.lastSeenAt) return false;
+                }
+
+                if (tagFilter && tagFilter.includes('=')) {
+                    const [key, val] = tagFilter.split('=').map(s => s.trim());
+                    if (!d.tags || !d.tags[key] || (val && d.tags[key] !== val)) return false;
+                }
+
+                return true;
+            });
+
+            renderExportPreview();
+        }
+
+        // ==================== PHASE 3: BULK DP CHANGE ====================
+        async function loadDevicesForDpChange() {
+            const progress = document.getElementById('dpChangeProgress');
+            const progressBar = document.getElementById('dpChangeLoadProgressBar');
+            const progressText = document.getElementById('dpChangeLoadProgressText');
+
+            // Populate DP select
+            const dpSelect = document.getElementById('dpChangeSelect');
+            dpSelect.innerHTML = '<option value="">-- Choisir --</option>' +
+                deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
+
+            progress.classList.remove('hidden');
+            document.getElementById('btnLoadDpChange').disabled = true;
+
+            try {
+                dpChangeDevices = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = `Chargement: ${loaded}/${total} devices`;
+                });
+
+                dpChangeSelection = new Set();
+                dpChangeFilterQuery = '';
+                renderDpChangeList();
+                document.getElementById('dpChangeListCard').classList.remove('hidden');
+                progressText.textContent = `${dpChangeDevices.length} devices charges`;
+            } catch (err) {
+                progressText.textContent = `Erreur: ${err.message}`;
+            }
+            document.getElementById('btnLoadDpChange').disabled = false;
+        }
+
+        function getFilteredDpChangeDevices() {
+            if (!dpChangeFilterQuery) return dpChangeDevices;
+            const q = dpChangeFilterQuery.toLowerCase();
+            return dpChangeDevices.filter(d =>
+                (d.name && d.name.toLowerCase().includes(q)) ||
+                (d.devEui && d.devEui.toLowerCase().includes(q))
+            );
+        }
+
+        function renderDpChangeList() {
+            const filtered = getFilteredDpChangeDevices();
+            const tbody = document.querySelector('#dpChangeTable tbody');
+
+            tbody.innerHTML = filtered.map(d => {
+                const checked = dpChangeSelection.has(d.devEui) ? 'checked' : '';
+                const profileName = d.deviceProfileName || '-';
+                const lastSeen = d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString('fr-FR') : 'Jamais';
+                return `<tr>
+                    <td><input type="checkbox" class="device-checkbox" ${checked} onchange="toggleDpChangeSelection('${d.devEui}')"></td>
+                    <td>${escapeHtml(d.name || '-')}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>
+                    <td>${escapeHtml(profileName)}</td>
+                    <td>${lastSeen}</td>
+                </tr>`;
+            }).join('');
+
+            updateDpChangeSelectionCount();
+        }
+
+        function toggleDpChangeSelection(devEui) {
+            if (dpChangeSelection.has(devEui)) dpChangeSelection.delete(devEui);
+            else dpChangeSelection.add(devEui);
+            updateDpChangeSelectionCount();
+        }
+
+        function selectAllForDpChange() {
+            getFilteredDpChangeDevices().forEach(d => dpChangeSelection.add(d.devEui));
+            renderDpChangeList();
+        }
+
+        function deselectAllDpChange() {
+            dpChangeSelection.clear();
+            renderDpChangeList();
+        }
+
+        function filterDpChangeList(query) {
+            dpChangeFilterQuery = query;
+            renderDpChangeList();
+        }
+
+        function updateDpChangeSelectionCount() {
+            document.getElementById('dpChangeSelectionCount').textContent = dpChangeSelection.size;
+            document.getElementById('btnDpChange').disabled = dpChangeSelection.size === 0;
+        }
+
+        async function executeDpChange() {
+            const newDpId = document.getElementById('dpChangeSelect').value;
+            if (!newDpId) { alert('Selectionnez un Device Profile de destination'); return; }
+            if (dpChangeSelection.size === 0) return;
+
+            const newDpName = document.getElementById('dpChangeSelect').options[document.getElementById('dpChangeSelect').selectedIndex].text;
+            if (!confirm(`Changer le Device Profile de ${dpChangeSelection.size} device(s) vers "${newDpName}" ?`)) return;
+
+            const resultsCard = document.getElementById('dpChangeResultsCard');
+            const logContainer = document.getElementById('dpChangeLogContainer');
+            const progressBar = document.getElementById('dpChangeProgressBar');
+            const progressText = document.getElementById('dpChangeProgressText');
+
+            resultsCard.classList.remove('hidden');
+            logContainer.innerHTML = '';
+
+            const devEuis = [...dpChangeSelection];
+            let success = 0;
+            let errors = 0;
+
+            for (let i = 0; i < devEuis.length; i++) {
+                const devEui = devEuis[i];
+                try {
+                    const deviceData = await apiCall(`/api/devices/${devEui}`);
+                    const device = deviceData.device;
+                    device.deviceProfileId = newDpId;
+                    await apiCall(`/api/devices/${devEui}`, 'PUT', { device });
+
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-success';
+                    entry.textContent = `\u2713 ${device.name || devEui}: profil mis a jour`;
+                    logContainer.appendChild(entry);
+                    success++;
+                } catch (err) {
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-error';
+                    entry.textContent = `\u2717 ${devEui}: ${err.message}`;
+                    logContainer.appendChild(entry);
+                    errors++;
+                }
+
+                const pct = Math.round(((i + 1) / devEuis.length) * 100);
+                progressBar.style.width = pct + '%';
+                progressText.textContent = `Progression: ${i + 1}/${devEuis.length}`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            progressText.textContent = `Termine: ${success} mis a jour, ${errors} erreur(s)`;
+        }
+
+        // ==================== PHASE 5: CROSS-APP SEARCH ====================
+        async function searchDevice() {
+            const devEui = document.getElementById('searchDevEui').value.trim();
+            if (!devEui || devEui.length < 4) { alert('Saisissez au moins 4 caracteres'); return; }
+
+            const resultsDiv = document.getElementById('searchResults');
+            const progress = document.getElementById('searchProgress');
+            const progressBar = document.getElementById('searchProgressBar');
+            const progressText = document.getElementById('searchProgressText');
+
+            progress.classList.remove('hidden');
+            resultsDiv.classList.add('hidden');
+
+            const found = [];
+
+            // If exact 16 hex, try direct GET first (instant)
+            if (/^[0-9a-fA-F]{16}$/i.test(devEui)) {
+                progressText.textContent = 'Recherche directe...';
+                progressBar.style.width = '50%';
+                try {
+                    const data = await apiCall(`/api/devices/${devEui}`);
+                    if (data.device) {
+                        const appName = applications.find(a => a.id === data.device.applicationId)?.name || data.device.applicationId;
+                        found.push({
+                            devEui: data.device.devEui,
+                            name: data.device.name,
+                            applicationName: appName,
+                            applicationId: data.device.applicationId,
+                            deviceProfileName: data.device.deviceProfileName || '-',
+                            lastSeenAt: data.device.lastSeenAt
+                        });
+                    }
+                } catch (e) { /* not found, continue with full scan */ }
+            }
+
+            // If not found via direct lookup, do full scan
+            if (found.length === 0) {
+                const lowerDevEui = devEui.toLowerCase();
+                for (let i = 0; i < applications.length; i++) {
+                    const app = applications[i];
+                    progressText.textContent = `Recherche dans ${app.name} (${i + 1}/${applications.length})...`;
+                    progressBar.style.width = Math.round(((i + 1) / applications.length) * 100) + '%';
+
+                    try {
+                        const devices = await loadAllDevicesFromApp(app.id);
+                        devices.forEach(d => {
+                            if (d.devEui.toLowerCase().includes(lowerDevEui)) {
+                                found.push({ ...d, applicationName: app.name, applicationId: app.id });
+                            }
+                        });
+                    } catch (e) { /* skip inaccessible apps */ }
+                }
+            }
+
+            progress.classList.add('hidden');
+            resultsDiv.classList.remove('hidden');
+
+            if (found.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: var(--text-dim);">Aucun device trouve.</p>';
+            } else {
+                resultsDiv.innerHTML = `
+                    <p style="margin-bottom: 1rem;">${found.length} resultat(s)</p>
+                    <div class="preview-table">
+                        <table>
+                            <thead><tr><th>DevEUI</th><th>Nom</th><th>Application</th><th>Profil</th><th>Dernier vu</th></tr></thead>
+                            <tbody>${found.map(d => `
+                                <tr>
+                                    <td style="font-family: 'JetBrains Mono', monospace;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>
+                                    <td>${escapeHtml(d.name || '-')}</td>
+                                    <td>${escapeHtml(d.applicationName)}</td>
+                                    <td>${escapeHtml(d.deviceProfileName || '-')}</td>
+                                    <td>${d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString('fr-FR') : 'Jamais'}</td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>`;
+            }
+        }
+
+        // ==================== PHASE 2: MIGRATION BETWEEN APPS ====================
+        function showMigrateTool() {
+            document.getElementById('migrateSourceApp').textContent = selectedApplicationName;
+            const destSelect = document.getElementById('migrateDestApp');
+            destSelect.innerHTML = '<option value="">-- Choisir --</option>' +
+                applications.filter(a => a.id !== selectedApplicationId)
+                    .map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+            // Reset state
+            document.getElementById('migrateListCard').classList.add('hidden');
+            document.getElementById('migrateResultsCard').classList.add('hidden');
+        }
+
+        async function loadDevicesForMigration() {
+            const progress = document.getElementById('migrateProgress');
+            const progressBar = document.getElementById('migrateLoadProgressBar');
+            const progressText = document.getElementById('migrateLoadProgressText');
+
+            progress.classList.remove('hidden');
+            document.getElementById('btnLoadMigrate').disabled = true;
+
+            try {
+                migrateDevices = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = `Chargement: ${loaded}/${total} devices`;
+                });
+
+                migrateSelection = new Set();
+                migrateFilterQuery = '';
+                renderMigrateList();
+                document.getElementById('migrateListCard').classList.remove('hidden');
+                progressText.textContent = `${migrateDevices.length} devices charges`;
+            } catch (err) {
+                progressText.textContent = `Erreur: ${err.message}`;
+            }
+            document.getElementById('btnLoadMigrate').disabled = false;
+        }
+
+        function getFilteredMigrateDevices() {
+            if (!migrateFilterQuery) return migrateDevices;
+            const q = migrateFilterQuery.toLowerCase();
+            return migrateDevices.filter(d =>
+                (d.name && d.name.toLowerCase().includes(q)) ||
+                (d.devEui && d.devEui.toLowerCase().includes(q))
+            );
+        }
+
+        function renderMigrateList() {
+            const filtered = getFilteredMigrateDevices();
+            const tbody = document.querySelector('#migrateTable tbody');
+
+            tbody.innerHTML = filtered.map(d => {
+                const checked = migrateSelection.has(d.devEui) ? 'checked' : '';
+                const profileName = d.deviceProfileName || '-';
+                return `<tr>
+                    <td><input type="checkbox" class="device-checkbox" ${checked} onchange="toggleMigrateSelection('${d.devEui}')"></td>
+                    <td>${escapeHtml(d.name || '-')}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>
+                    <td>${escapeHtml(profileName)}</td>
+                </tr>`;
+            }).join('');
+
+            updateMigrateSelectionCount();
+        }
+
+        function toggleMigrateSelection(devEui) {
+            if (migrateSelection.has(devEui)) migrateSelection.delete(devEui);
+            else migrateSelection.add(devEui);
+            updateMigrateSelectionCount();
+        }
+
+        function selectAllForMigration() {
+            getFilteredMigrateDevices().forEach(d => migrateSelection.add(d.devEui));
+            renderMigrateList();
+        }
+
+        function deselectAllMigration() {
+            migrateSelection.clear();
+            renderMigrateList();
+        }
+
+        function filterMigrateList(query) {
+            migrateFilterQuery = query;
+            renderMigrateList();
+        }
+
+        function updateMigrateSelectionCount() {
+            document.getElementById('migrateSelectionCount').textContent = migrateSelection.size;
+            document.getElementById('btnMigrate').disabled = migrateSelection.size === 0;
+        }
+
+        async function executeMigration() {
+            const destAppId = document.getElementById('migrateDestApp').value;
+            if (!destAppId) { alert('Selectionnez une application de destination'); return; }
+            if (migrateSelection.size === 0) return;
+
+            const destAppName = document.getElementById('migrateDestApp').options[document.getElementById('migrateDestApp').selectedIndex].text;
+            if (!confirm(`Migrer ${migrateSelection.size} device(s) vers "${destAppName}" ?\n\nAttention: les devices seront supprimes de l'application source.`)) return;
+
+            const resultsCard = document.getElementById('migrateResultsCard');
+            const logContainer = document.getElementById('migrateLogContainer');
+            const progressBar = document.getElementById('migrateProgressBar');
+            const progressText = document.getElementById('migrateProgressText');
+
+            resultsCard.classList.remove('hidden');
+            logContainer.innerHTML = '';
+
+            const devEuis = [...migrateSelection];
+            let success = 0;
+            let errors = 0;
+
+            for (let i = 0; i < devEuis.length; i++) {
+                const devEui = devEuis[i];
+                const deviceInfo = migrateDevices.find(d => d.devEui === devEui);
+                const name = deviceInfo ? deviceInfo.name : devEui;
+
+                try {
+                    // 1. GET device
+                    const deviceData = await apiCall(`/api/devices/${devEui}`);
+                    const device = deviceData.device;
+
+                    // 2. GET keys
+                    let keys = null;
+                    try {
+                        const keysData = await apiCall(`/api/devices/${devEui}/keys`);
+                        keys = keysData.deviceKeys;
+                    } catch (e) { /* no keys */ }
+
+                    // 3. DELETE from source app
+                    await apiCall(`/api/devices/${devEui}`, 'DELETE');
+
+                    // 4. POST in destination app
+                    device.applicationId = destAppId;
+                    await apiCall('/api/devices', 'POST', { device });
+
+                    // 5. POST keys if they existed
+                    if (keys) {
+                        try {
+                            await apiCall(`/api/devices/${devEui}/keys`, 'POST', { deviceKeys: keys });
+                        } catch (e) {
+                            const entry = document.createElement('div');
+                            entry.className = 'log-entry log-warning';
+                            entry.textContent = `  \u26A0 ${name}: cles non restaurees: ${e.message}`;
+                            logContainer.appendChild(entry);
+                        }
+                    }
+
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-success';
+                    entry.textContent = `\u2713 ${name} (${devEui}) migre`;
+                    logContainer.appendChild(entry);
+                    success++;
+                } catch (err) {
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-error';
+                    entry.textContent = `\u2717 ${name} (${devEui}): ${err.message}`;
+                    logContainer.appendChild(entry);
+                    errors++;
+                }
+
+                const pct = Math.round(((i + 1) / devEuis.length) * 100);
+                progressBar.style.width = pct + '%';
+                progressText.textContent = `Progression: ${i + 1}/${devEuis.length}`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            progressText.textContent = `Termine: ${success} migre(s), ${errors} erreur(s)`;
         }
 
         // Load profiles on page load
