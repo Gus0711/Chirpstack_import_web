@@ -3137,7 +3137,17 @@
         </div>
 
         <!-- Validation summary -->
-        <p id="validationSummary" class="hidden" style="color: var(--error); font-size: 0.9rem; margin: 0.75rem auto 0 auto; max-width: 900px; font-weight: 500; text-align: center;"></p>
+        <div id="validationSummary" class="hidden" style="max-width: 900px; margin: 0.75rem auto 0 auto;">
+            <p id="validationSummaryText" style="color: var(--error); font-size: 0.9rem; font-weight: 500; text-align: center; margin-bottom: 0.5rem;"></p>
+            <div class="preview-table" style="max-height: 200px; overflow-y: auto;">
+                <table id="validationDetailTable">
+                    <thead>
+                        <tr><th>Ligne CSV</th><th>Champ</th><th>Valeur</th><th>Erreur</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Actions -->
         <div class="actions hidden" id="actionsSection" style="max-width: 900px; margin: 0 auto;">
@@ -4311,14 +4321,28 @@
             const validation = validateImportData();
             const summaryEl = document.getElementById('validationSummary');
             if (!validation.valid) {
-                summaryEl.textContent = `\u26A0 ${validation.errors.length} erreur(s) de format detectee(s) - verifiez votre fichier`;
+                document.getElementById('validationSummaryText').textContent = `\u26A0 ${validation.errors.length} erreur(s) de format detectee(s) - verifiez votre fichier`;
+
+                // Fill detail table
+                const detailTbody = document.querySelector('#validationDetailTable tbody');
+                detailTbody.innerHTML = validation.errors.map(err => {
+                    const lineNum = err.row >= 0 ? err.row + 2 : '-';
+                    const fieldValue = err.row >= 0 && mapping[err.field] ? escapeHtml(csvData[err.row][mapping[err.field]] || '(vide)') : '-';
+                    return `<tr>
+                        <td>${lineNum}</td>
+                        <td>${escapeHtml(err.field)}</td>
+                        <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${fieldValue}</td>
+                        <td style="color: var(--error);">${escapeHtml(err.message)}</td>
+                    </tr>`;
+                }).join('');
+
                 summaryEl.classList.remove('hidden');
 
                 // Color error cells in preview
                 const rows = tbody.querySelectorAll('tr');
-                const mapping = getMapping();
-                const devEuiColIdx = displayFields.filter(f => mapping[f]).indexOf('dev_eui');
-                const appKeyColIdx = displayFields.filter(f => mapping[f]).indexOf('app_key');
+                const mapping2 = getMapping();
+                const devEuiColIdx = displayFields.filter(f => mapping2[f]).indexOf('dev_eui');
+                const appKeyColIdx = displayFields.filter(f => mapping2[f]).indexOf('app_key');
 
                 validation.errors.forEach(err => {
                     if (err.row >= 0 && err.row < rows.length) {
