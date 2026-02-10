@@ -2419,6 +2419,260 @@
             border: 1px solid var(--error) !important;
             background: rgba(255, 92, 92, 0.1);
         }
+
+        /* ==================== ANALYZE TOOL ==================== */
+        .analyze-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .analyze-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 450px) {
+            .analyze-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        .stat-card.active { border-color: #00d4aa; }
+        .stat-card.active .stat-value { color: #00d4aa; }
+        .stat-card.recent { border-color: #4da6ff; }
+        .stat-card.recent .stat-value { color: #4da6ff; }
+        .stat-card.inactive { border-color: #ffb84d; }
+        .stat-card.inactive .stat-value { color: #ffb84d; }
+        .stat-card.offline { border-color: #ff5c5c; }
+        .stat-card.offline .stat-value { color: #ff5c5c; }
+        .stat-card.never { border-color: #6b6b80; }
+        .stat-card.never .stat-value { color: #6b6b80; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-badge.active { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+        .status-badge.recent { background: rgba(77, 166, 255, 0.15); color: #4da6ff; }
+        .status-badge.inactive { background: rgba(255, 184, 77, 0.15); color: #ffb84d; }
+        .status-badge.offline { background: rgba(255, 92, 92, 0.15); color: #ff5c5c; }
+        .status-badge.never { background: rgba(107, 107, 128, 0.15); color: #6b6b80; }
+
+        .analyze-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .analyze-filters .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .analyze-filters .filter-group label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .analyze-filters input,
+        .analyze-filters select {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .analyze-filters select {
+            min-width: 140px;
+        }
+
+        .tag-chip {
+            display: inline-block;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+            margin: 0.1rem;
+        }
+
+        .profile-bars {
+            margin-top: 1rem;
+        }
+
+        .profile-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-bar-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            min-width: 120px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .profile-bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .profile-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .profile-bar-count {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 500px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.3rem;
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-card .metric-quality {
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+        }
+
+        .metric-quality.good { color: #00d4aa; }
+        .metric-quality.medium { color: #ffb84d; }
+        .metric-quality.bad { color: #ff5c5c; }
+
+        .metrics-chart {
+            margin-top: 1rem;
+        }
+
+        .metrics-chart-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.75rem;
+        }
+
+        .metrics-chart-label {
+            min-width: 70px;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metrics-chart-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-dark);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .metrics-chart-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--accent);
+        }
+
+        .analyze-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .analyze-table-wrapper table {
+            width: 100%;
+        }
+
+        .analyze-table-wrapper th {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .analyze-table-wrapper th:hover {
+            color: var(--accent);
+        }
+
+        .sort-arrow {
+            font-size: 0.7rem;
+            margin-left: 0.3rem;
+        }
     </style>
 </head>
 <body>
@@ -2647,6 +2901,13 @@
                         </svg>
                         <h3>Rechercher</h3>
                         <p>Trouver un device par DevEUI dans toutes les applications</p>
+                    </div>
+                    <div class="tool-card" onclick="showTool('analyze')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <h3>Analyse</h3>
+                        <p>Tableau de bord et metriques detaillees des devices</p>
                     </div>
                     <div class="tool-card" onclick="openTemplateModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2926,6 +3187,29 @@
                 </div>
             </div>
 
+            <!-- Import Error Summary -->
+            <div id="importErrorSummary" class="hidden" style="margin: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h3 style="color: var(--error); margin: 0; font-size: 1rem;">Devices en erreur</h3>
+                    <button class="btn-secondary btn-small" onclick="exportImportErrors()">Exporter les erreurs (CSV)</button>
+                </div>
+                <div class="preview-table" style="max-height: 250px; overflow-y: auto;">
+                    <table id="importErrorTable">
+                        <thead>
+                            <tr><th>Ligne</th><th>DevEUI</th><th>Nom</th><th>Erreur</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Log filter toggle -->
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem; margin-bottom: 0.25rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-dim); cursor: pointer;">
+                    <input type="checkbox" id="toggleLogErrorsOnly" onchange="toggleLogErrors()">
+                    Afficher uniquement les erreurs
+                </label>
+            </div>
             <div class="log-container" id="logContainer"></div>
         </div>
             </div><!-- End importSubView -->
@@ -3203,6 +3487,89 @@
                 </div>
             </div>
 
+            <!-- ====== ANALYZE SUB-VIEW ====== -->
+            <div id="analyzeSubView" class="tool-subview hidden" style="max-width: 1100px;">
+                <div class="tool-subview-header">
+                    <button class="btn-back" onclick="backToToolsHub()">&#8592; Retour</button>
+                    <h2>Analyse des devices</h2>
+                </div>
+
+                <div class="card" style="margin: 0 auto 1.5rem auto;">
+                    <button class="btn-primary" id="btnAnalyzeLoad" onclick="loadAnalyzeDevices()">Analyser les devices</button>
+                    <div id="analyzeProgress" class="hidden" style="margin-top: 1rem;">
+                        <p class="progress-text" id="analyzeProgressText">Chargement...</p>
+                        <div class="progress-bar"><div class="progress-bar-fill" id="analyzeProgressBar"></div></div>
+                    </div>
+                </div>
+
+                <div id="analyzeStatsCard" class="card hidden" style="margin: 0 auto 1.5rem auto;">
+                    <h3 style="margin-bottom: 1rem;">Statistiques</h3>
+                    <div class="analyze-stats-grid" id="analyzeStatsGrid"></div>
+                    <div class="profile-bars" id="analyzeProfileBars"></div>
+                </div>
+
+                <div id="analyzeFiltersCard" class="card hidden" style="margin: 0 auto 1.5rem auto;">
+                    <div class="analyze-filters">
+                        <div class="filter-group" style="flex: 1; min-width: 150px;">
+                            <label>Recherche</label>
+                            <input type="text" id="analyzeSearchInput" placeholder="Nom ou DevEUI..." oninput="filterAnalyzeSearch(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <label>Statut</label>
+                            <select id="analyzeStatusFilter" onchange="filterAnalyzeStatus(this.value)">
+                                <option value="">Tous</option>
+                                <option value="active">Actif (&lt;24h)</option>
+                                <option value="recent">Recent (1-7j)</option>
+                                <option value="inactive">Inactif (7-30j)</option>
+                                <option value="offline">Hors ligne (&gt;30j)</option>
+                                <option value="never">Jamais vu</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Device Profile</label>
+                            <select id="analyzeDpFilter" onchange="filterAnalyzeDp(this.value)">
+                                <option value="">Tous</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="min-width: 120px;">
+                            <label>Tag (key=value)</label>
+                            <input type="text" id="analyzeTagFilter" placeholder="key=value" oninput="filterAnalyzeTag(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <label>Tri</label>
+                            <select id="analyzeSortSelect" onchange="sortAnalyzeBy(this.value)">
+                                <option value="lastSeenAt-desc">Dernier vu (recent)</option>
+                                <option value="lastSeenAt-asc">Dernier vu (ancien)</option>
+                                <option value="name-asc">Nom (A-Z)</option>
+                                <option value="name-desc">Nom (Z-A)</option>
+                                <option value="devEui-asc">DevEUI (A-Z)</option>
+                                <option value="devEui-desc">DevEUI (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span id="analyzeCount" style="font-size: 0.85rem; color: var(--text-dim);"></span>
+                        <button class="btn-secondary btn-small" onclick="exportAnalyzeTable()">Exporter CSV</button>
+                    </div>
+                    <div class="analyze-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th onclick="sortAnalyzeByCol('name')">Nom <span id="analyzeSortName" class="sort-arrow"></span></th>
+                                    <th onclick="sortAnalyzeByCol('devEui')">DevEUI <span id="analyzeSortDevEui" class="sort-arrow"></span></th>
+                                    <th onclick="sortAnalyzeByCol('deviceProfileName')">Profil <span id="analyzeSortProfile" class="sort-arrow"></span></th>
+                                    <th>Tags</th>
+                                    <th onclick="sortAnalyzeByCol('lastSeenAt')">Dernier vu <span id="analyzeSortLastSeen" class="sort-arrow"></span></th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analyzeTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div><!-- End step3 -->
     </div>
 
@@ -3259,6 +3626,29 @@
             <div style="text-align: center;">
                 <button class="btn-primary" onclick="downloadCsvTemplate()">Telecharger le template</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Analyze Metrics Modal -->
+    <div class="modal-overlay hidden" id="analyzeMetricsModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="metricsModalTitle">Metriques du device</h2>
+                <button class="modal-close" onclick="closeMetricsModal()">&times;</button>
+            </div>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;" id="metricsModalDevEui"></p>
+            <div style="margin-bottom: 1rem;">
+                <label>Periode</label>
+                <select id="metricsPeriodSelect" onchange="changeMetricsPeriod()" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.85rem;">
+                    <option value="24h">Derniere 24h</option>
+                    <option value="7d">7 derniers jours</option>
+                    <option value="30d">30 derniers jours</option>
+                </select>
+            </div>
+            <div id="metricsLoading" class="hidden" style="text-align: center; padding: 2rem;">
+                <p style="color: var(--text-dim);">Chargement des metriques...</p>
+            </div>
+            <div id="metricsContent"></div>
         </div>
     </div>
 
@@ -3962,7 +4352,21 @@
             if (!retryMode) {
                 const validation = validateImportData();
                 if (!validation.valid) {
-                    alert(`${validation.errors.length} erreur(s) de format detectee(s). Corrigez votre fichier.`);
+                    // Show detailed validation errors in the error summary panel
+                    importErrors = validation.errors.map(e => ({
+                        row: e.row >= 0 ? e.row + 2 : '-',
+                        devEui: e.row >= 0 && mapping.dev_eui ? (csvData[e.row][mapping.dev_eui] || '') : '',
+                        name: e.row >= 0 && mapping.name ? (csvData[e.row][mapping.name] || '') : '',
+                        error: `${e.field}: ${e.message}`,
+                        type: 'validation'
+                    }));
+                    resultsSection.classList.remove('hidden');
+                    document.getElementById('logContainer').innerHTML = '';
+                    document.getElementById('statTotal').textContent = csvData.length;
+                    document.getElementById('statSuccess').textContent = 0;
+                    document.getElementById('statError').textContent = validation.errors.length;
+                    log(`${validation.errors.length} erreur(s) de format detectee(s). Corrigez votre fichier avant de relancer l'import.`, 'error');
+                    renderImportErrorSummary();
                     return;
                 }
             }
@@ -3993,13 +4397,17 @@
 
             resultsSection.classList.remove('hidden');
             document.getElementById('fixDeviceProfileSection').classList.add('hidden');
+            document.getElementById('importErrorSummary').classList.add('hidden');
             const logContainer = document.getElementById('logContainer');
 
             if (!retryMode) {
                 logContainer.innerHTML = '';
                 failedRows = [];
                 hasDeviceProfileError = false;
+                importErrors = [];
             }
+            // Reset log filter toggle
+            document.getElementById('toggleLogErrorsOnly').checked = false;
 
             let success = 0;
             let errors = 0;
@@ -4053,10 +4461,12 @@
                     }
                 };
 
+                const csvLineNum = retryMode ? '' : i + 2; // i+2: index 0 + 1 (base-1) + 1 (header row)
+
                 try {
                     // Create device
                     await apiCall('/api/devices', 'POST', devicePayload);
-                    log(`✓ Device ${deviceName} créé`, 'success');
+                    log(`✓ ${csvLineNum ? 'Ligne ' + csvLineNum + ' - ' : ''}Device ${deviceName} cree`, 'success');
                     lastImportedDevEuis.push(devEui);
 
                     // Add keys if app_key is mapped
@@ -4070,17 +4480,20 @@
 
                         try {
                             await apiCall(`/api/devices/${devEui}/keys`, 'POST', keysPayload);
-                            log(`  ↳ Clés ajoutées`, 'info');
+                            log(`  ↳ Cles ajoutees`, 'info');
                         } catch (keyErr) {
-                            log(`  ⚠ Clés non ajoutées: ${keyErr.message}`, 'error');
+                            const keyError = parseApiError(keyErr.message);
+                            log(`  ⚠ ${csvLineNum ? 'Ligne ' + csvLineNum + ' - ' : ''}Cles non ajoutees: ${keyError}`, 'error');
+                            importErrors.push({ row: csvLineNum || undefined, devEui, name: deviceName, error: `Cle: ${keyError}`, type: 'key' });
                         }
                     }
 
                     success++;
                 } catch (err) {
                     const friendlyError = parseApiError(err.message);
-                    log(`✗ ${deviceName}: ${friendlyError}`, 'error');
+                    log(`✗ ${csvLineNum ? 'Ligne ' + csvLineNum + ' - ' : ''}${deviceName}: ${friendlyError}`, 'error');
                     errors++;
+                    importErrors.push({ row: csvLineNum || undefined, devEui, name: deviceName, error: friendlyError, type: 'device' });
 
                     // Track Device Profile errors for retry
                     if (err.message.includes('invalid length') && err.message.includes('found 0')) {
@@ -4094,7 +4507,12 @@
             }
 
             document.getElementById('importBtn').disabled = false;
-            log(`\n═══ Import terminé: ${success}/${total} devices créés ═══`, success === total ? 'success' : 'info');
+            log(`\n═══ Import termine: ${success}/${total} devices crees ═══`, success === total ? 'success' : 'info');
+
+            // Show error summary if there were errors
+            if (importErrors.length > 0) {
+                renderImportErrorSummary();
+            }
 
             // Phase 1: Show undo button if devices were created
             if (lastImportedDevEuis.length > 0) {
@@ -4107,7 +4525,7 @@
                 const fixSelect = document.getElementById('fixDeviceProfileSelect');
 
                 // Populate the fix select with device profiles
-                fixSelect.innerHTML = '<option value="">-- Sélectionnez un Device Profile --</option>' +
+                fixSelect.innerHTML = '<option value="">-- Selectionnez un Device Profile --</option>' +
                     deviceProfiles.map(dp => `<option value="${dp.id}">${dp.name}</option>`).join('');
 
                 fixSection.classList.remove('hidden');
@@ -4133,31 +4551,99 @@
             container.scrollTop = container.scrollHeight;
         }
 
+        function renderImportErrorSummary() {
+            const panel = document.getElementById('importErrorSummary');
+            const tbody = document.querySelector('#importErrorTable tbody');
+            if (!importErrors.length) {
+                panel.classList.add('hidden');
+                return;
+            }
+            tbody.innerHTML = importErrors.map(e =>
+                `<tr>
+                    <td>${e.row !== undefined ? e.row : '-'}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${escapeHtml(e.devEui || '-')}</td>
+                    <td>${escapeHtml(e.name || '-')}</td>
+                    <td style="color: var(--error);">${escapeHtml(e.error)}${e.type === 'key' ? ' (cle)' : ''}</td>
+                </tr>`
+            ).join('');
+            panel.classList.remove('hidden');
+        }
+
+        function exportImportErrors() {
+            if (!importErrors.length) return;
+            const header = 'Ligne;DevEUI;Nom;Type;Erreur';
+            const rows = importErrors.map(e =>
+                `${e.row !== undefined ? e.row : ''};${e.devEui || ''};${e.name || ''};${e.type || 'device'};${(e.error || '').replace(/;/g, ',')}`
+            );
+            const csv = [header, ...rows].join('\n');
+            triggerDownload(csv, 'import_errors.csv', 'text/csv;charset=utf-8');
+        }
+
+        function toggleLogErrors() {
+            const errorsOnly = document.getElementById('toggleLogErrorsOnly').checked;
+            const entries = document.querySelectorAll('#logContainer .log-entry');
+            entries.forEach(entry => {
+                if (errorsOnly) {
+                    entry.style.display = entry.classList.contains('log-error') ? '' : 'none';
+                } else {
+                    entry.style.display = '';
+                }
+            });
+        }
+
         function parseApiError(errorMessage) {
+            const msg = (errorMessage || '').toLowerCase();
+
             // Parse ChirpStack error messages to make them user-friendly
-            if (errorMessage.includes('invalid length: expected length 32') && errorMessage.includes('found 0')) {
-                return 'Device Profile ID manquant. Sélectionnez un Device Profile ou mappez la colonne dans le CSV.';
+            if (msg.includes('invalid length: expected length 32') && msg.includes('found 0')) {
+                return 'Device Profile ID manquant. Selectionnez un Device Profile ou mappez la colonne dans le CSV.';
             }
-            if (errorMessage.includes('invalid length: expected length 32')) {
-                return 'Un champ UUID est invalide (doit faire 32 caractères). Vérifiez device_profile_id ou application_id.';
+            if (msg.includes('invalid length: expected length 32')) {
+                return 'Un champ UUID est invalide (doit faire 32 caracteres). Verifiez device_profile_id ou application_id.';
             }
-            if (errorMessage.includes('object already exists')) {
-                return 'Ce device existe déjà (dev_eui en doublon).';
+            if (msg.includes('object already exists')) {
+                return 'Ce device existe deja (dev_eui en doublon).';
             }
-            if (errorMessage.includes('invalid DevEUI')) {
-                return 'DevEUI invalide. Doit être 16 caractères hexadécimaux.';
+            if (msg.includes('invalid deveui')) {
+                return 'DevEUI invalide. Doit etre 16 caracteres hexadecimaux.';
             }
-            if (errorMessage.includes('invalid AppKey') || errorMessage.includes('invalid NwkKey')) {
-                return 'AppKey/NwkKey invalide. Doit être 32 caractères hexadécimaux.';
+            if (msg.includes('invalid appkey') || msg.includes('invalid nwkkey')) {
+                return 'AppKey/NwkKey invalide. Doit etre 32 caracteres hexadecimaux.';
+            }
+
+            // Auth / permission errors
+            if (msg.includes('unauthenticated') || msg.includes('401')) {
+                return 'Token API invalide ou expire. Verifiez votre token.';
+            }
+            if (msg.includes('permission denied') || msg.includes('403')) {
+                return 'Permission refusee (verifiez les droits du token).';
+            }
+            // Rate limiting
+            if (msg.includes('rate limit') || msg.includes('429') || msg.includes('too many requests')) {
+                return 'Trop de requetes, veuillez reessayer dans quelques instants.';
+            }
+            // Network errors
+            if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('network error') || msg.includes('err_connection')) {
+                return 'Erreur reseau, verifiez la connexion au serveur ChirpStack.';
+            }
+            // Name conflict
+            if (msg.includes('name') && msg.includes('already exists')) {
+                return 'Un device avec ce nom existe deja.';
             }
 
             // Try to extract just the message from JSON
             try {
                 const parsed = JSON.parse(errorMessage.substring(errorMessage.indexOf('{')));
                 if (parsed.message) {
-                    return parsed.message || errorMessage;
+                    const extracted = parsed.message || errorMessage;
+                    return extracted.length > 200 ? extracted.substring(0, 200) + '...' : extracted;
                 }
             } catch (e) {}
+
+            // Truncate long messages
+            if (errorMessage.length > 200) {
+                return errorMessage.substring(0, 200) + '...';
+            }
 
             return errorMessage;
         }
@@ -4171,6 +4657,7 @@
             currentFile = null;
             currentFileType = null;
             detectedSeparator = null;
+            importErrors = [];
 
             document.getElementById('fileName').textContent = '';
             fileInput.value = '';
@@ -4178,6 +4665,7 @@
             previewSection.classList.add('hidden');
             actionsSection.classList.add('hidden');
             resultsSection.classList.add('hidden');
+            document.getElementById('importErrorSummary').classList.add('hidden');
             document.getElementById('manualTagContainer').innerHTML = '';
 
             // Reset separator section
@@ -5032,31 +5520,36 @@
             // Get device profile
             const selectedDP = getSelectedDeviceProfile();
             if (!selectedDP || !selectedDP.id) {
-                alert('Veuillez sélectionner un Device Profile');
+                alert('Veuillez selectionner un Device Profile');
                 return;
             }
 
             // Phase 1: Reset undo tracking
             lastImportedDevEuis = [];
+            importErrors = [];
             document.getElementById('btnUndoImport').classList.add('hidden');
 
             // Show results section
             document.getElementById('mappingSection').classList.add('hidden');
             const resultsSection = document.getElementById('resultsSection');
             resultsSection.classList.remove('hidden');
+            document.getElementById('importErrorSummary').classList.add('hidden');
 
             const logContainer = document.getElementById('logContainer');
             logContainer.innerHTML = '';
+            // Reset log filter toggle
+            document.getElementById('toggleLogErrorsOnly').checked = false;
 
             let successCount = 0;
             let errorCount = 0;
 
-            log(`Début de l'import manuel de ${devices.length} device(s)...`, 'info');
+            log(`Debut de l'import manuel de ${devices.length} device(s)...`, 'info');
             log(`Application: ${document.getElementById('summaryApp').textContent}`, 'info');
             log(`Device Profile: ${selectedDP.name}`, 'info');
             log('─'.repeat(40), 'info');
 
-            for (const device of devices) {
+            for (let idx = 0; idx < devices.length; idx++) {
+                const device = devices[idx];
                 try {
                     // Create device
                     const devicePayload = {
@@ -5075,14 +5568,20 @@
 
                     // Add keys if appkey provided
                     if (device.appkey) {
-                        const keysPayload = {
-                            device_keys: {
-                                dev_eui: device.deveui,
-                                nwk_key: device.appkey,
-                                app_key: device.appkey
-                            }
-                        };
-                        await apiCall(`/api/devices/${device.deveui}/keys`, 'POST', keysPayload);
+                        try {
+                            const keysPayload = {
+                                device_keys: {
+                                    dev_eui: device.deveui,
+                                    nwk_key: device.appkey,
+                                    app_key: device.appkey
+                                }
+                            };
+                            await apiCall(`/api/devices/${device.deveui}/keys`, 'POST', keysPayload);
+                        } catch (keyErr) {
+                            const keyError = parseApiError(keyErr.message);
+                            log(`  ⚠ ${device.name}: Cles non ajoutees: ${keyError}`, 'error');
+                            importErrors.push({ row: idx + 1, devEui: device.deveui, name: device.name, error: `Cle: ${keyError}`, type: 'key' });
+                        }
                     }
 
                     log(`✓ ${device.name} (${device.deveui})`, 'success');
@@ -5093,16 +5592,22 @@
                     const errorMsg = parseApiError(error.message || String(error));
                     log(`✗ ${device.name} (${device.deveui}): ${errorMsg}`, 'error');
                     errorCount++;
+                    importErrors.push({ row: idx + 1, devEui: device.deveui, name: device.name, error: errorMsg, type: 'device' });
                 }
             }
 
             log('─'.repeat(40), 'info');
-            log(`Import terminé: ${successCount} succès, ${errorCount} erreur(s)`, successCount > 0 && errorCount === 0 ? 'success' : 'info');
+            log(`Import termine: ${successCount} succes, ${errorCount} erreur(s)`, successCount > 0 && errorCount === 0 ? 'success' : 'info');
 
             // Update stats
             document.getElementById('statSuccess').textContent = successCount;
             document.getElementById('statError').textContent = errorCount;
             document.getElementById('statTotal').textContent = devices.length;
+
+            // Show error summary if there were errors
+            if (importErrors.length > 0) {
+                renderImportErrorSummary();
+            }
 
             // Phase 1: Show undo button
             if (lastImportedDevEuis.length > 0) {
@@ -5141,12 +5646,23 @@
 
         // ==================== NEW PHASE GLOBALS ====================
         let lastImportedDevEuis = [];
+        let importErrors = [];
         let migrateDevices = [];
         let migrateSelection = new Set();
         let migrateFilterQuery = '';
         let dpChangeDevices = [];
         let dpChangeSelection = new Set();
         let dpChangeFilterQuery = '';
+
+        // ==================== ANALYZE TOOL GLOBALS ====================
+        let analyzeDevices = [];
+        let analyzeFilterQuery = '';
+        let analyzeStatusFilter = '';
+        let analyzeDpFilter = '';
+        let analyzeTagFilter = '';
+        let analyzeSortField = 'lastSeenAt';
+        let analyzeSortAsc = false;
+        let currentMetricsDevEui = '';
 
         // ==================== TOOLS HUB NAVIGATION ====================
         function showTool(toolName) {
@@ -5162,6 +5678,7 @@
             if (toolName === 'export') {
                 document.getElementById('exportAppName').textContent = selectedApplicationName;
             }
+            if (toolName === 'analyze') initAnalyzeTool();
         }
 
         function backToToolsHub() {
@@ -5200,6 +5717,437 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // ==================== ANALYZE TOOL ====================
+        function initAnalyzeTool() {
+            // Populate DP filter
+            const dpSelect = document.getElementById('analyzeDpFilter');
+            dpSelect.innerHTML = '<option value="">Tous</option>' +
+                deviceProfiles.map(dp => `<option value="${dp.id}">${escapeHtml(dp.name)}</option>`).join('');
+        }
+
+        async function loadAnalyzeDevices() {
+            const btn = document.getElementById('btnAnalyzeLoad');
+            const progress = document.getElementById('analyzeProgress');
+            const progressBar = document.getElementById('analyzeProgressBar');
+            const progressText = document.getElementById('analyzeProgressText');
+
+            btn.disabled = true;
+            progress.classList.remove('hidden');
+            progressBar.style.width = '0%';
+
+            try {
+                analyzeDevices = await loadAllDevicesFromApp(selectedApplicationId, (loaded, total) => {
+                    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = `Chargement: ${loaded}/${total} devices`;
+                });
+
+                progressText.textContent = `${analyzeDevices.length} devices charges`;
+
+                // Reset filters
+                analyzeFilterQuery = '';
+                analyzeStatusFilter = '';
+                analyzeDpFilter = '';
+                analyzeTagFilter = '';
+                analyzeSortField = 'lastSeenAt';
+                analyzeSortAsc = false;
+                document.getElementById('analyzeSearchInput').value = '';
+                document.getElementById('analyzeStatusFilter').value = '';
+                document.getElementById('analyzeDpFilter').value = '';
+                document.getElementById('analyzeTagFilter').value = '';
+                document.getElementById('analyzeSortSelect').value = 'lastSeenAt-desc';
+
+                const stats = computeAnalyzeStats(analyzeDevices);
+                renderAnalyzeStats(stats);
+                renderAnalyzeTable();
+
+                document.getElementById('analyzeStatsCard').classList.remove('hidden');
+                document.getElementById('analyzeFiltersCard').classList.remove('hidden');
+            } catch (e) {
+                progressText.textContent = 'Erreur: ' + e.message;
+            }
+
+            btn.disabled = false;
+        }
+
+        function getDeviceStatus(device) {
+            if (!device.lastSeenAt) return 'never';
+            const now = new Date();
+            const last = new Date(device.lastSeenAt);
+            const diffH = (now - last) / (1000 * 60 * 60);
+            if (diffH < 24) return 'active';
+            if (diffH < 24 * 7) return 'recent';
+            if (diffH < 24 * 30) return 'inactive';
+            return 'offline';
+        }
+
+        function getStatusLabel(status) {
+            const labels = { active: 'Actif', recent: 'Recent', inactive: 'Inactif', offline: 'Hors ligne', never: 'Jamais vu' };
+            return labels[status] || status;
+        }
+
+        function computeAnalyzeStats(devices) {
+            const stats = { total: devices.length, active: 0, recent: 0, inactive: 0, offline: 0, never: 0, byProfile: {} };
+            devices.forEach(d => {
+                const s = getDeviceStatus(d);
+                stats[s]++;
+                const pName = d.deviceProfileName || 'Inconnu';
+                if (!stats.byProfile[pName]) stats.byProfile[pName] = 0;
+                stats.byProfile[pName]++;
+            });
+            return stats;
+        }
+
+        function renderAnalyzeStats(stats) {
+            const grid = document.getElementById('analyzeStatsGrid');
+            grid.innerHTML = `
+                <div class="stat-card"><div class="stat-value">${stats.total}</div><div class="stat-label">Total</div></div>
+                <div class="stat-card active"><div class="stat-value">${stats.active}</div><div class="stat-label">Actif (&lt;24h)</div></div>
+                <div class="stat-card recent"><div class="stat-value">${stats.recent}</div><div class="stat-label">Recent (1-7j)</div></div>
+                <div class="stat-card inactive"><div class="stat-value">${stats.inactive}</div><div class="stat-label">Inactif (7-30j)</div></div>
+                <div class="stat-card offline"><div class="stat-value">${stats.offline}</div><div class="stat-label">Hors ligne (&gt;30j)</div></div>
+                <div class="stat-card never"><div class="stat-value">${stats.never}</div><div class="stat-label">Jamais vu</div></div>
+            `;
+
+            const bars = document.getElementById('analyzeProfileBars');
+            const entries = Object.entries(stats.byProfile).sort((a, b) => b[1] - a[1]);
+            const maxCount = entries.length > 0 ? entries[0][1] : 1;
+            bars.innerHTML = '<h4 style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.75rem;">Repartition par profil</h4>' +
+                entries.map(([name, count]) => `
+                    <div class="profile-bar-row">
+                        <span class="profile-bar-label" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+                        <div class="profile-bar-track"><div class="profile-bar-fill" style="width: ${Math.round((count / maxCount) * 100)}%"></div></div>
+                        <span class="profile-bar-count">${count}</span>
+                    </div>
+                `).join('');
+        }
+
+        function getFilteredAnalyzeDevices() {
+            let filtered = analyzeDevices;
+
+            if (analyzeFilterQuery) {
+                const q = analyzeFilterQuery.toLowerCase();
+                filtered = filtered.filter(d =>
+                    (d.name || '').toLowerCase().includes(q) ||
+                    (d.devEui || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (analyzeStatusFilter) {
+                filtered = filtered.filter(d => getDeviceStatus(d) === analyzeStatusFilter);
+            }
+
+            if (analyzeDpFilter) {
+                filtered = filtered.filter(d => d.deviceProfileId === analyzeDpFilter);
+            }
+
+            if (analyzeTagFilter) {
+                const parts = analyzeTagFilter.split('=');
+                if (parts.length === 2) {
+                    const [key, val] = parts.map(s => s.trim().toLowerCase());
+                    filtered = filtered.filter(d => {
+                        if (!d.tags) return false;
+                        const tagVal = Object.entries(d.tags).find(([k]) => k.toLowerCase() === key);
+                        return tagVal && tagVal[1].toLowerCase().includes(val);
+                    });
+                } else {
+                    const q = analyzeTagFilter.toLowerCase();
+                    filtered = filtered.filter(d => {
+                        if (!d.tags) return false;
+                        return Object.entries(d.tags).some(([k, v]) =>
+                            k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
+                        );
+                    });
+                }
+            }
+
+            // Sort
+            filtered.sort((a, b) => {
+                let va, vb;
+                if (analyzeSortField === 'lastSeenAt') {
+                    va = a.lastSeenAt ? new Date(a.lastSeenAt).getTime() : 0;
+                    vb = b.lastSeenAt ? new Date(b.lastSeenAt).getTime() : 0;
+                } else if (analyzeSortField === 'name') {
+                    va = (a.name || '').toLowerCase();
+                    vb = (b.name || '').toLowerCase();
+                } else if (analyzeSortField === 'devEui') {
+                    va = (a.devEui || '').toLowerCase();
+                    vb = (b.devEui || '').toLowerCase();
+                } else if (analyzeSortField === 'deviceProfileName') {
+                    va = (a.deviceProfileName || '').toLowerCase();
+                    vb = (b.deviceProfileName || '').toLowerCase();
+                } else {
+                    va = a[analyzeSortField] || '';
+                    vb = b[analyzeSortField] || '';
+                }
+                if (va < vb) return analyzeSortAsc ? -1 : 1;
+                if (va > vb) return analyzeSortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return filtered;
+        }
+
+        function renderAnalyzeTable() {
+            const filtered = getFilteredAnalyzeDevices();
+            document.getElementById('analyzeCount').textContent = `${filtered.length} / ${analyzeDevices.length} devices`;
+
+            const tbody = document.getElementById('analyzeTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 2rem;">Aucun device</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(d => {
+                const status = getDeviceStatus(d);
+                const statusLabel = getStatusLabel(status);
+                const lastSeen = d.lastSeenAt ? formatTimeAgo(d.lastSeenAt) : '-';
+                const lastSeenFull = d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString('fr-FR') : 'Jamais';
+                const tags = d.tags ? Object.entries(d.tags).map(([k, v]) => `<span class="tag-chip">${escapeHtml(k)}=${escapeHtml(v)}</span>`).join('') : '-';
+
+                return `<tr>
+                    <td>${escapeHtml(d.name || '-')}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${d.devEui}<button class="btn-copy" onclick="event.stopPropagation();copyToClipboard('${d.devEui}', this)">copier</button></td>
+                    <td style="font-size: 0.85rem;">${escapeHtml(d.deviceProfileName || '-')}</td>
+                    <td style="max-width: 200px; overflow: hidden;">${tags}</td>
+                    <td style="white-space: nowrap;" title="${lastSeenFull}">${lastSeen}</td>
+                    <td><span class="status-badge ${status}">${statusLabel}</span></td>
+                    <td><button class="btn-secondary btn-small" onclick="showDeviceMetrics('${d.devEui}', '${escapeHtml(d.name || d.devEui)}')">Metriques</button></td>
+                </tr>`;
+            }).join('');
+
+            // Update sort arrows
+            ['Name', 'DevEui', 'Profile', 'LastSeen'].forEach(col => {
+                const el = document.getElementById('analyzeSort' + col);
+                if (el) el.textContent = '';
+            });
+            const colMap = { name: 'Name', devEui: 'DevEui', deviceProfileName: 'Profile', lastSeenAt: 'LastSeen' };
+            const arrowEl = document.getElementById('analyzeSort' + (colMap[analyzeSortField] || ''));
+            if (arrowEl) arrowEl.textContent = analyzeSortAsc ? '▲' : '▼';
+        }
+
+        function sortAnalyzeBy(value) {
+            const [field, dir] = value.split('-');
+            analyzeSortField = field;
+            analyzeSortAsc = dir === 'asc';
+            renderAnalyzeTable();
+        }
+
+        function sortAnalyzeByCol(field) {
+            if (analyzeSortField === field) {
+                analyzeSortAsc = !analyzeSortAsc;
+            } else {
+                analyzeSortField = field;
+                analyzeSortAsc = field === 'name' || field === 'devEui';
+            }
+            // Sync the select
+            const selectVal = field + '-' + (analyzeSortAsc ? 'asc' : 'desc');
+            const sel = document.getElementById('analyzeSortSelect');
+            const opt = sel.querySelector(`option[value="${selectVal}"]`);
+            if (opt) sel.value = selectVal;
+            renderAnalyzeTable();
+        }
+
+        function filterAnalyzeSearch(value) {
+            analyzeFilterQuery = value;
+            renderAnalyzeTable();
+        }
+
+        function filterAnalyzeStatus(value) {
+            analyzeStatusFilter = value;
+            renderAnalyzeTable();
+        }
+
+        function filterAnalyzeDp(value) {
+            analyzeDpFilter = value;
+            renderAnalyzeTable();
+        }
+
+        function filterAnalyzeTag(value) {
+            analyzeTagFilter = value;
+            renderAnalyzeTable();
+        }
+
+        function formatTimeAgo(dateStr) {
+            if (!dateStr) return '-';
+            const now = new Date();
+            const d = new Date(dateStr);
+            const diffMs = now - d;
+            const diffMin = Math.floor(diffMs / 60000);
+            const diffH = Math.floor(diffMs / 3600000);
+            const diffD = Math.floor(diffMs / 86400000);
+
+            if (diffMin < 1) return 'a l\'instant';
+            if (diffMin < 60) return `il y a ${diffMin}min`;
+            if (diffH < 24) return `il y a ${diffH}h`;
+            if (diffD < 7) return `il y a ${diffD}j`;
+            if (diffD < 30) return `il y a ${Math.floor(diffD / 7)} sem.`;
+            if (diffD < 365) return `il y a ${Math.floor(diffD / 30)} mois`;
+            return `il y a ${Math.floor(diffD / 365)} an(s)`;
+        }
+
+        async function showDeviceMetrics(devEui, deviceName) {
+            currentMetricsDevEui = devEui;
+            document.getElementById('metricsModalTitle').textContent = deviceName;
+            document.getElementById('metricsModalDevEui').textContent = devEui;
+            document.getElementById('metricsPeriodSelect').value = '24h';
+            document.getElementById('analyzeMetricsModal').classList.remove('hidden');
+            await loadDeviceMetrics(devEui, '24h');
+        }
+
+        function closeMetricsModal() {
+            document.getElementById('analyzeMetricsModal').classList.add('hidden');
+        }
+
+        async function changeMetricsPeriod() {
+            const period = document.getElementById('metricsPeriodSelect').value;
+            await loadDeviceMetrics(currentMetricsDevEui, period);
+        }
+
+        async function loadDeviceMetrics(devEui, period) {
+            const loading = document.getElementById('metricsLoading');
+            const content = document.getElementById('metricsContent');
+            loading.classList.remove('hidden');
+            content.innerHTML = '';
+
+            const now = new Date();
+            let start, aggregation;
+            if (period === '24h') {
+                start = new Date(now.getTime() - 24 * 3600000);
+                aggregation = 'HOUR';
+            } else if (period === '7d') {
+                start = new Date(now.getTime() - 7 * 86400000);
+                aggregation = 'HOUR';
+            } else {
+                start = new Date(now.getTime() - 30 * 86400000);
+                aggregation = 'DAY';
+            }
+
+            const startStr = start.toISOString();
+            const endStr = now.toISOString();
+
+            try {
+                const data = await apiCall(`/api/devices/${devEui}/link-metrics?start=${encodeURIComponent(startStr)}&end=${encodeURIComponent(endStr)}&aggregation=${aggregation}`);
+
+                loading.classList.add('hidden');
+
+                // Parse metrics
+                const rxPackets = parseMetricDatasets(data.rxPackets);
+                const gwRssi = parseMetricDatasets(data.gwRssi);
+                const gwSnr = parseMetricDatasets(data.gwSnr);
+                const errors = parseMetricDatasets(data.errors);
+
+                const totalRx = rxPackets.total;
+                const avgRssi = gwRssi.avg;
+                const avgSnr = gwSnr.avg;
+                const totalErrors = errors.total;
+
+                // Quality indicators
+                const rssiQuality = avgRssi === null ? '' : avgRssi > -80 ? 'good' : avgRssi > -110 ? 'medium' : 'bad';
+                const rssiQualityLabel = avgRssi === null ? '' : avgRssi > -80 ? 'Excellent' : avgRssi > -110 ? 'Correct' : 'Faible';
+                const snrQuality = avgSnr === null ? '' : avgSnr > 5 ? 'good' : avgSnr > 0 ? 'medium' : 'bad';
+                const snrQualityLabel = avgSnr === null ? '' : avgSnr > 5 ? 'Excellent' : avgSnr > 0 ? 'Correct' : 'Faible';
+
+                content.innerHTML = `
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Paquets recus</div>
+                            <div class="metric-value" style="color: var(--accent);">${totalRx}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Erreurs</div>
+                            <div class="metric-value" style="color: ${totalErrors > 0 ? 'var(--error)' : 'var(--text)'};">${totalErrors}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">RSSI moyen</div>
+                            <div class="metric-value">${avgRssi !== null ? avgRssi.toFixed(1) + ' dBm' : 'N/A'}</div>
+                            ${rssiQuality ? `<div class="metric-quality ${rssiQuality}">${rssiQualityLabel}</div>` : ''}
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">SNR moyen</div>
+                            <div class="metric-value">${avgSnr !== null ? avgSnr.toFixed(1) + ' dB' : 'N/A'}</div>
+                            ${snrQuality ? `<div class="metric-quality ${snrQuality}">${snrQualityLabel}</div>` : ''}
+                        </div>
+                    </div>
+                    ${renderMetricsChart('Paquets recus', rxPackets.values, rxPackets.labels)}
+                `;
+            } catch (e) {
+                loading.classList.add('hidden');
+                content.innerHTML = `<p style="color: var(--error);">Erreur lors du chargement: ${escapeHtml(e.message)}</p>`;
+            }
+        }
+
+        function parseMetricDatasets(metricData) {
+            if (!metricData || !metricData.datasets || metricData.datasets.length === 0) {
+                return { total: 0, avg: null, values: [], labels: [] };
+            }
+
+            const labels = metricData.timestamps || [];
+            let allValues = [];
+
+            metricData.datasets.forEach(ds => {
+                if (ds.data) {
+                    Object.entries(ds.data).forEach(([, val]) => {
+                        const n = parseFloat(val);
+                        if (!isNaN(n)) allValues.push(n);
+                    });
+                }
+            });
+
+            const total = allValues.reduce((s, v) => s + v, 0);
+            const avg = allValues.length > 0 ? total / allValues.length : null;
+
+            // Build per-timestamp values for chart
+            const chartValues = [];
+            const chartLabels = [];
+            if (labels.length > 0 && metricData.datasets[0] && metricData.datasets[0].data) {
+                const ds = metricData.datasets[0].data;
+                labels.forEach((ts, i) => {
+                    const key = Object.keys(ds)[i];
+                    const val = key !== undefined ? parseFloat(ds[key]) || 0 : 0;
+                    chartValues.push(val);
+                    const d = new Date(ts);
+                    chartLabels.push(d.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }));
+                });
+            }
+
+            return { total: Math.round(total), avg, values: chartValues, labels: chartLabels };
+        }
+
+        function renderMetricsChart(title, values, labels) {
+            if (!values || values.length === 0) return '';
+            const maxVal = Math.max(...values, 1);
+            // Show last 24 bars max
+            const showCount = Math.min(values.length, 24);
+            const startIdx = values.length - showCount;
+            let html = `<div class="metrics-chart"><h4 style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">${title}</h4>`;
+            for (let i = startIdx; i < values.length; i++) {
+                const pct = Math.round((values[i] / maxVal) * 100);
+                html += `<div class="metrics-chart-row">
+                    <span class="metrics-chart-label">${labels[i] || ''}</span>
+                    <div class="metrics-chart-bar"><div class="metrics-chart-bar-fill" style="width: ${pct}%; background: ${values[i] > 0 ? 'var(--accent)' : 'var(--border)'}"></div></div>
+                    <span style="min-width: 30px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text);">${values[i]}</span>
+                </div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function exportAnalyzeTable() {
+            const filtered = getFilteredAnalyzeDevices();
+            if (filtered.length === 0) return;
+
+            const headers = ['Nom', 'DevEUI', 'Profil', 'Tags', 'Dernier vu', 'Statut'];
+            const rows = filtered.map(d => {
+                const tags = d.tags ? Object.entries(d.tags).map(([k, v]) => `${k}=${v}`).join('; ') : '';
+                const lastSeen = d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString('fr-FR') : 'Jamais';
+                return [d.name || '', d.devEui, d.deviceProfileName || '', tags, lastSeen, getStatusLabel(getDeviceStatus(d))];
+            });
+
+            const csvContent = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+            triggerDownload(csvContent, `analyse_devices_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8;');
         }
 
         // ==================== TEMPLATE CSV (Phase 2) ====================
@@ -5339,14 +6287,18 @@
             const duplicateEuis = new Set(duplicatesFound.map(d => d.devEui));
 
             lastImportedDevEuis = [];
+            importErrors = [];
             document.getElementById('btnUndoImport').classList.add('hidden');
 
             resultsSection.classList.remove('hidden');
             document.getElementById('fixDeviceProfileSection').classList.add('hidden');
+            document.getElementById('importErrorSummary').classList.add('hidden');
             const logContainer = document.getElementById('logContainer');
             logContainer.innerHTML = '';
             failedRows = [];
             hasDeviceProfileError = false;
+            // Reset log filter toggle
+            document.getElementById('toggleLogErrorsOnly').checked = false;
 
             let success = 0;
             let errors = 0;
@@ -5361,9 +6313,10 @@
                 const devEui = (row[mapping.dev_eui] || '').toLowerCase();
                 const deviceName = row[mapping.name] || devEui;
                 const isDuplicate = duplicateEuis.has(devEui);
+                const csvLineNum = i + 2;
 
                 if (isDuplicate && duplicateAction === 'ignore') {
-                    log(`⊘ ${deviceName} (${devEui}): ignore (doublon)`, 'info');
+                    log(`⊘ Ligne ${csvLineNum} - ${deviceName} (${devEui}): ignore (doublon)`, 'info');
                     skipped++;
                     continue;
                 }
@@ -5372,10 +6325,12 @@
                     // Delete existing device first
                     try {
                         await apiCall(`/api/devices/${devEui}`, 'DELETE');
-                        log(`  ↳ ${deviceName}: ancien device supprime`, 'info');
+                        log(`  ↳ Ligne ${csvLineNum} - ${deviceName}: ancien device supprime`, 'info');
                     } catch (delErr) {
-                        log(`  ⚠ ${deviceName}: echec suppression: ${delErr.message}`, 'error');
+                        const delError = parseApiError(delErr.message);
+                        log(`  ⚠ Ligne ${csvLineNum} - ${deviceName}: echec suppression: ${delError}`, 'error');
                         errors++;
+                        importErrors.push({ row: csvLineNum, devEui, name: deviceName, error: `Echec suppression: ${delError}`, type: 'device' });
                         document.getElementById('statError').textContent = errors;
                         continue;
                     }
@@ -5408,7 +6363,7 @@
 
                 try {
                     await apiCall('/api/devices', 'POST', devicePayload);
-                    log(`✓ Device ${deviceName} cree`, 'success');
+                    log(`✓ Ligne ${csvLineNum} - Device ${deviceName} cree`, 'success');
                     lastImportedDevEuis.push(devEui);
 
                     if (mapping.app_key && row[mapping.app_key]) {
@@ -5418,14 +6373,17 @@
                             });
                             log(`  ↳ Cles ajoutees`, 'info');
                         } catch (keyErr) {
-                            log(`  ⚠ Cles non ajoutees: ${keyErr.message}`, 'error');
+                            const keyError = parseApiError(keyErr.message);
+                            log(`  ⚠ Ligne ${csvLineNum} - Cles non ajoutees: ${keyError}`, 'error');
+                            importErrors.push({ row: csvLineNum, devEui, name: deviceName, error: `Cle: ${keyError}`, type: 'key' });
                         }
                     }
                     success++;
                 } catch (err) {
                     const friendlyError = parseApiError(err.message);
-                    log(`✗ ${deviceName}: ${friendlyError}`, 'error');
+                    log(`✗ Ligne ${csvLineNum} - ${deviceName}: ${friendlyError}`, 'error');
                     errors++;
+                    importErrors.push({ row: csvLineNum, devEui, name: deviceName, error: friendlyError, type: 'device' });
                     if (err.message.includes('invalid length') && err.message.includes('found 0')) {
                         hasDeviceProfileError = true;
                         failedRows.push(row);
@@ -5439,6 +6397,11 @@
             document.getElementById('importBtn').disabled = false;
             const summary = skipped > 0 ? `${success} crees, ${skipped} ignores, ${errors} erreurs` : `${success}/${total} devices crees`;
             log(`\n═══ Import termine: ${summary} ═══`, success + skipped === total ? 'success' : 'info');
+
+            // Show error summary if there were errors
+            if (importErrors.length > 0) {
+                renderImportErrorSummary();
+            }
 
             // Phase 1: Show undo button
             if (lastImportedDevEuis.length > 0) {
